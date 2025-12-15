@@ -1,5 +1,6 @@
 # Packer
 packer.pkrvars.hcl
+packer.example.hcl
 crash.log
 crash.*.log
 
