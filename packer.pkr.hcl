@@ -7,6 +7,10 @@ packer {
   }
 }
 
+variable "proxmox_url" {
+  type = string
+}
+
 variable "proxmox_api_token_id" {
   type      = string
   sensitive = true
@@ -28,7 +32,7 @@ variable "password" {
 
 source "proxmox-iso" "ubuntu" {
   # Proxmox Connection Settings
-  proxmox_url              = "https://192.168.1.108:8006/api2/json"
+  proxmox_url              = var.proxmox_url
   username                 = var.proxmox_api_token_id
   token                    = var.proxmox_api_token_secret
   insecure_skip_tls_verify = true
