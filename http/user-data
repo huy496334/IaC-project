@@ -1,0 +1,27 @@
+#cloud-config
+autoinstall:
+  version: 1
+  ssh:
+    install-server: true
+    allow-pw: true
+    disable_root: true
+  storage:
+    layout:
+      name: direct
+    swap:
+      size: 0
+  locale: en_US.UTF-8
+  timezone: UTC
+  user-data:
+    package_upgrade: false
+    users:
+      - name: ubuntu
+        groups: [adm, sudo]
+        sudo: ALL=(ALL) NOPASSWD:ALL
+        lock_passwd: false
+        passwd: "Proxmox10022000"
+  packages:
+    - sudo
+    - qemu-guest-agent
+
+# Need to add SSH key later

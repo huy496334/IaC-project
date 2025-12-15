@@ -30,65 +30,65 @@ variable "password" {
   sensitive = true
 }
 
-source "proxmox-iso" "ubuntu" {
+variable "clone_vm_id" {
+  type        = number
+  description = "VM ID to clone from"
+  default     = 9000
+}
+
+source "proxmox-clone" "ubuntu" {
   # Proxmox Connection Settings
   proxmox_url              = var.proxmox_url
   username                 = var.proxmox_api_token_id
   token                    = var.proxmox_api_token_secret
   insecure_skip_tls_verify = true
 
-  # VM General Settings
-  node     = "pve-1"
-  vm_id    = 9000
-  vm_name  = "ubuntu-template"
-  template_description = "Ubuntu 24.04 VM Template"
+  # Clone Settings
+  clone_vm_id = var.clone_vm_id
+  vm_name     = "ubuntu-golden-image"
+  node        = "pve-1"
 
+  # VM Settings
   cores   = 2
   memory  = 2048
-  
-  qemu_agent = true
-  
-  network_adapters {
-    model = "virtio"
-    bridge = "vmbr0"
-  }
 
   disks {
-    disk_size         = "20G"
-    format            = "qcow2"
-    storage_pool      = "local-lvm"
-    type              = "virtio"
-  }
-  
-  boot_iso {
-    type         = "scsi"
-    iso_file     = "local:iso/noble-server-cloudimg-amd64.img"
-    unmount      = true
+    disk_size    = "20G"
+    storage_pool = "local-lvm"
   }
 
-  cloud_init = true
-  cloud_init_storage_pool = "local-lvm"
-
-  ssh_username = "student"
+  # SSH Settings
+  ssh_username = "ubuntu"
   ssh_password = var.password
+  ssh_timeout  = "5m"
 }
 
 build {
-  sources = ["source.proxmox-iso.ubuntu"]
+  sources = ["source.proxmox-clone.ubuntu"]
 
-  # Disable KVM acceleration for nested virtualization
+  # Wait for system to be ready
   provisioner "shell" {
     inline = [
-      "echo 'Configuring for nested virtualization'",
-      "sleep 5"
+      "echo 'Waiting for system to stabilize...'",
+      "sleep 10"
     ]
   }
 
-  # Simple shell provisioner
+  # System updates
   provisioner "shell" {
     inline = [
-      "echo 'Hello from Packer!'",
-      "apt-get update && apt-get upgrade -y"
+      "sudo apt-get update -y",
+      "sudo apt-get upgrade -y",
+      "sudo apt-get autoremove -y",
+      "sudo apt-get clean"
+    ]
+  }
+
+  # Install useful packages
+  provisioner "shell" {
+    inline = [
+      "sudo apt-get install -y curl wget git vim htop",
+      "echo 'Golden image ready!'"
     ]
   }
 }
