@@ -1,4 +1,4 @@
-# Packer Golden Image for Proxmox
+# SOC-deployment for Proxmox
 
 Bouw een golden image (VM template) voor Proxmox met Packer.
 
