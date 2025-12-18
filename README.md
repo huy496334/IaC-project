@@ -64,10 +64,9 @@ Zorg dat `noble-server-cloudimg-amd64.img` in Proxmox storage staat:
 
 ## Volgende stappen
 
-- [ ] Fix KVM nested virtualization
 - [ ] Voer packer build succesvol uit
 - [ ] Test template met Terraform deployment
-- [ ] Voeg provisioners toe (packages, scripts, etc)
+- [ ] Voeg provisioners toe met Ansible
 
 ## Resources
 
