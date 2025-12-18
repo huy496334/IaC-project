@@ -1,4 +1,4 @@
-# Packer Golden Image für Proxmox
+# Packer Golden Image for Proxmox
 
 Bouw een golden image (VM template) voor Proxmox met Packer.
 
