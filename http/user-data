@@ -12,16 +12,17 @@ autoinstall:
       size: 0
   locale: en_US.UTF-8
   timezone: UTC
-  user-data:
-    package_upgrade: false
-    users:
-      - name: ubuntu
-        groups: [adm, sudo]
-        sudo: ALL=(ALL) NOPASSWD:ALL
-        lock_passwd: false
-        passwd: "Proxmox10022000"
+  package-update: false
   packages:
     - sudo
     - qemu-guest-agent
-
-# Need to add SSH key later
+  user-data:
+    hostname: ubuntu-base
+    users:
+      - name: ubuntu
+        gecos: 'Ubuntu User'
+        passwd: '$6$rounds=4096$YMT7afWS4ioHDhWv$gJrv/2bGcfdJT7KmV7.2CknXUwA5qCVa.oM420wtKsYArJNJCaVp9A3I.qN/ABwFkh17vEuT.i3gYF51HGNMr0'
+        groups: sudo
+        shell: /bin/bash
+        lock_passwd: false
+        sudo: ALL=(ALL) NOPASSWD:ALL

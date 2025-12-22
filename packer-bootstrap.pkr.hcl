@@ -30,6 +30,11 @@ variable "password" {
   sensitive = true
 }
 
+variable "ubuntu_password" {
+  type      = string
+  sensitive = true
+}
+
 # Bootstrap VM template from Ubuntu ISO
 source "proxmox-iso" "ubuntu-bootstrap" {
   # Proxmox Connection Settings
