@@ -12,6 +12,8 @@ venv/
 .terraform.lock.hcl
 terraform.tfstate
 terraform.tfstate.*
+terraform.tfvars
+terraform.tfvars.json
 override.tf.json
 override.tf
 crash.log

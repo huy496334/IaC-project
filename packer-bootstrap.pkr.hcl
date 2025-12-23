@@ -44,7 +44,7 @@ source "proxmox-iso" "ubuntu-bootstrap" {
   insecure_skip_tls_verify = true
 
   # VM Settings
-  node     = "pve-1"
+  node     = "pve"
   vm_id    = 9000
   vm_name  = "ubuntu-base"
   template_description = "ubuntu 24.04 LTS bootstrap template created by Packer"

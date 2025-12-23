@@ -46,7 +46,7 @@ source "proxmox-clone" "ubuntu" {
   # Clone Settings
   clone_vm_id = var.clone_vm_id
   vm_name     = "ubuntu-golden-image"
-  node        = "pve-1"
+  node        = "pve"
 
   # VM Settings
   cores   = 2
@@ -74,20 +74,10 @@ build {
     ]
   }
 
-  # System updates
+  # Install useful packages (system already updated from bootstrap)
   provisioner "shell" {
     inline = [
-      "sudo apt-get update -y",
-      "sudo apt-get upgrade -y",
-      "sudo apt-get autoremove -y",
-      "sudo apt-get clean"
-    ]
-  }
-
-  # Install useful packages
-  provisioner "shell" {
-    inline = [
-      "sudo apt-get install -y curl wget git vim htop",
+      "sudo apt-get install -y curl wget git vim htop net-tools",
       "echo 'Golden image ready!'"
     ]
   }
