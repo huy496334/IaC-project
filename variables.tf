@@ -20,7 +20,7 @@ variable "proxmox_api_token_secret" {
 variable "proxmox_node" {
   description = "Proxmox node name"
   type        = string
-  default     = "pve-1"
+  default     = "pve"
 }
 
 # Packer Image Configuration
@@ -97,13 +97,13 @@ variable "honeypot_bridge" {
 variable "vm_memory" {
   description = "Default VM memory in MB"
   type        = number
-  default     = 2048
+  default     = 1024
 }
 
 variable "vm_cores" {
   description = "Default VM CPU cores"
   type        = number
-  default     = 2
+  default     = 1
 }
 
 variable "vm_sockets" {
