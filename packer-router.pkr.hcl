@@ -21,17 +21,13 @@ variable "proxmox_api_token_secret" {
   sensitive = true
 }
 
-variable "username" {
-  type = string
-}
-
 variable "ubuntu_password" {
   type      = string
   sensitive = true
 }
 
-# Bootstrap VM template from Ubuntu ISO
-source "proxmox-iso" "ubuntu-bootstrap" {
+# Router template from Ubuntu ISO
+source "proxmox-iso" "router" {
   # Proxmox Connection Settings
   proxmox_url              = var.proxmox_url
   username                 = var.proxmox_api_token_id
@@ -39,10 +35,10 @@ source "proxmox-iso" "ubuntu-bootstrap" {
   insecure_skip_tls_verify = true
 
   # VM Settings
-  node     = "pve"
-  vm_id    = 9002
-  vm_name  = "ubuntu-base"
-  template_description = "ubuntu 24.04.3 LTS bootstrap template created by Packer"
+  node                 = "pve"
+  vm_id                = 9001
+  vm_name              = "router-template"
+  template_description = "Ubuntu 24.04.3 LTS router template with IP forwarding"
 
   disks {
     disk_size    = "20G"
@@ -95,8 +91,8 @@ source "proxmox-iso" "ubuntu-bootstrap" {
 }
 
 build {
-  name = "ubuntu-24.04.3-bootstrap"
-  sources = ["source.proxmox-iso.ubuntu-bootstrap"]
+  name    = "router-template"
+  sources = ["source.proxmox-iso.router"]
 
   # Wait for cloud-init
   provisioner "shell" {
@@ -106,13 +102,22 @@ build {
     ]
   }
 
-  # System updates
+  # Install router-specific packages and setup
   provisioner "shell" {
     inline = [
       "sudo apt-get update -y",
       "sudo apt-get upgrade -y",
-      "sudo apt-get install -y qemu-guest-agent",
+      "sudo apt-get install -y qemu-guest-agent iptables-persistent netfilter-persistent",
       "sudo systemctl enable qemu-guest-agent"
+    ]
+  }
+
+  # Enable IP forwarding
+  provisioner "shell" {
+    inline = [
+      "sudo sysctl -w net.ipv4.ip_forward=1",
+      "sudo sh -c 'echo net.ipv4.ip_forward=1 >> /etc/sysctl.conf'",
+      "echo 'IP forwarding enabled'"
     ]
   }
 
@@ -121,7 +126,7 @@ build {
     inline = [
       "sudo apt-get autoremove -y",
       "sudo apt-get clean",
-      "echo 'Bootstrap complete - VM is ready for cloning'"
+      "echo 'Router template complete - VM is ready for cloning'"
     ]
   }
 }

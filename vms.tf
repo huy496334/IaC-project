@@ -243,7 +243,7 @@ resource "proxmox_vm_qemu" "router" {
   name            = "router-nat"
   vmid            = 149
   target_node     = var.proxmox_node
-  clone           = var.packer_image_name
+  clone           = "router-template"
   full_clone      = true
   
   memory          = 512
@@ -288,24 +288,25 @@ resource "proxmox_vm_qemu" "router" {
   ipconfig1 = "ip=${var.soc_network_gateway}/24"
   ipconfig2 = "ip=${var.honeypot_network_gateway}/24"
   
-  # Cloud-init user data for NAT configuration
-  user_data = base64encode(<<-EOF
-    #!/bin/bash
-    # Enable IP forwarding
-    echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
-    sysctl -p
+  # Wait for network to be ready, then configure NAT
+  provisioner "remote-exec" {
+    inline = [
+      "sleep 30",
+      "sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE",
+      "sudo iptables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT",
+      "sudo iptables -A FORWARD -i eth1 -o eth0 -j ACCEPT",
+      "sudo iptables -A FORWARD -i eth2 -o eth0 -j ACCEPT",
+      "sudo netfilter-persistent save"
+    ]
     
-    # Configure NAT with iptables
-    iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
-    iptables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-    iptables -A FORWARD -i eth1 -o eth0 -j ACCEPT
-    iptables -A FORWARD -i eth2 -o eth0 -j ACCEPT
-    
-    # Make iptables rules persistent
-    apt-get update && apt-get install -y iptables-persistent
-    netfilter-persistent save
-  EOF
-  )
+    connection {
+      type        = "ssh"
+      user        = var.ssh_username
+      password    = var.ssh_password
+      host        = self.default_ipv4_address
+      timeout     = "10m"
+    }
+  }
   
   onboot = true
 }
