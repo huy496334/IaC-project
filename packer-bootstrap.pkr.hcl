@@ -40,7 +40,7 @@ source "proxmox-iso" "ubuntu-bootstrap" {
 
   # VM Settings
   node     = "pve"
-  vm_id    = 9002
+  vm_id    = 9001
   vm_name  = "ubuntu-base"
   template_description = "ubuntu 24.04.3 LTS bootstrap template created by Packer"
 
@@ -73,7 +73,8 @@ source "proxmox-iso" "ubuntu-bootstrap" {
   scsi_controller = "virtio-scsi-single"
 
   # HTTP server for cloud-init
-  http_directory = "http"
+  http_directory    = "http"
+  http_bind_address = "10.6.210.2"
 
   # Packer commands to automate the installation
   boot_wait    = "10s"

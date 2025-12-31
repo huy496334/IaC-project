@@ -3,7 +3,7 @@
 # Wazuh SIEM Server
 resource "proxmox_vm_qemu" "wazuh_server" {
   name            = "wazuh-server"
-  vmid            = 150
+  vmid            = 151
   target_node     = var.proxmox_node
   clone           = var.packer_image_name
   full_clone      = true
@@ -21,6 +21,12 @@ resource "proxmox_vm_qemu" "wazuh_server" {
     slot    = "virtio0"
   }
   
+  disk {
+    type    = "cloudinit"
+    storage = var.storage_pool
+    slot    = "ide2"
+  }
+  
   network {
     id     = 0
     model  = "virtio"
@@ -31,46 +37,13 @@ resource "proxmox_vm_qemu" "wazuh_server" {
   ciuser = var.ssh_username
   cipassword = var.ssh_password
   ipconfig0 = "ip=192.168.50.10/24,gw=${var.soc_network_gateway}"
-  onboot = true
+  skip_ipv6 = true
+  start_at_node_boot = true
 }
 
 # Suricata IDS Server
 resource "proxmox_vm_qemu" "suricata_ids" {
   name            = "suricata-ids"
-  vmid            = 151
-  target_node     = var.proxmox_node
-  clone           = var.packer_image_name
-  full_clone      = true
-  
-  memory          = var.vm_memory
-  
-  cpu {
-    cores = var.vm_cores
-  }
-  
-  disk {
-    type    = "disk"
-    storage = var.storage_pool
-    size    = var.vm_disk_size
-    slot    = "virtio0"
-  }
-  
-  network {
-    id     = 0
-    model  = "virtio"
-    bridge = var.soc_bridge
-    tag    = var.soc_network_vlan
-  }
-  
-  ciuser = var.ssh_username
-  cipassword = var.ssh_password
-  ipconfig0 = "ip=192.168.50.11/24,gw=${var.soc_network_gateway}"
-  onboot = true
-}
-
-# Zabbix Monitoring Server
-resource "proxmox_vm_qemu" "zabbix_monitor" {
-  name            = "zabbix-monitor"
   vmid            = 152
   target_node     = var.proxmox_node
   clone           = var.packer_image_name
@@ -89,6 +62,52 @@ resource "proxmox_vm_qemu" "zabbix_monitor" {
     slot    = "virtio0"
   }
   
+  disk {
+    type    = "cloudinit"
+    storage = var.storage_pool
+    slot    = "ide2"
+  }
+  
+  network {
+    id     = 0
+    model  = "virtio"
+    bridge = var.soc_bridge
+    tag    = var.soc_network_vlan
+  }
+  
+  ciuser = var.ssh_username
+  cipassword = var.ssh_password
+  ipconfig0 = "ip=192.168.50.11/24,gw=${var.soc_network_gateway}"
+  start_at_node_boot = true
+}
+
+# Zabbix + Grafana Monitoring Server
+resource "proxmox_vm_qemu" "zabbix_grafana" {
+  name            = "zabbix-grafana"
+  vmid            = 153
+  target_node     = var.proxmox_node
+  clone           = var.packer_image_name
+  full_clone      = true
+  
+  memory          = var.vm_memory * 2
+  
+  cpu {
+    cores = var.vm_cores * 2
+  }
+  
+  disk {
+    type    = "disk"
+    storage = var.storage_pool
+    size    = var.vm_disk_size
+    slot    = "virtio0"
+  }
+  
+  disk {
+    type    = "cloudinit"
+    storage = var.storage_pool
+    slot    = "ide2"
+  }
+  
   network {
     id     = 0
     model  = "virtio"
@@ -99,41 +118,7 @@ resource "proxmox_vm_qemu" "zabbix_monitor" {
   ciuser = var.ssh_username
   cipassword = var.ssh_password
   ipconfig0 = "ip=192.168.50.20/24,gw=${var.soc_network_gateway}"
-  onboot = true
-}
-
-# Grafana Visualization Server
-resource "proxmox_vm_qemu" "grafana_viz" {
-  name            = "grafana-viz"
-  vmid            = 153
-  target_node     = var.proxmox_node
-  clone           = var.packer_image_name
-  full_clone      = true
-  
-  memory          = var.vm_memory
-  
-  cpu {
-    cores = var.vm_cores
-  }
-  
-  disk {
-    type    = "disk"
-    storage = var.storage_pool
-    size    = var.vm_disk_size
-    slot    = "virtio0"
-  }
-  
-  network {
-    id     = 0
-    model  = "virtio"
-    bridge = var.soc_bridge
-    tag    = var.soc_network_vlan
-  }
-  
-  ciuser = var.ssh_username
-  cipassword = var.ssh_password
-  ipconfig0 = "ip=192.168.50.21/24,gw=${var.soc_network_gateway}"
-  onboot = true
+  start_at_node_boot = true
 }
 
 # GLPI Ticketing System
@@ -157,6 +142,12 @@ resource "proxmox_vm_qemu" "glpi_tickets" {
     slot    = "virtio0"
   }
   
+  disk {
+    type    = "cloudinit"
+    storage = var.storage_pool
+    slot    = "ide2"
+  }
+  
   network {
     id     = 0
     model  = "virtio"
@@ -167,13 +158,13 @@ resource "proxmox_vm_qemu" "glpi_tickets" {
   ciuser = var.ssh_username
   cipassword = var.ssh_password
   ipconfig0 = "ip=192.168.50.30/24,gw=${var.soc_network_gateway}"
-  onboot = true
+  start_at_node_boot = true
 }
 
 # T-Pot Honeypot Server
 resource "proxmox_vm_qemu" "tpot_honeypot" {
   name            = "tpot-honeypot"
-  vmid            = 156
+  vmid            = 155
   target_node     = var.proxmox_node
   clone           = var.packer_image_name
   full_clone      = true
@@ -191,6 +182,12 @@ resource "proxmox_vm_qemu" "tpot_honeypot" {
     slot    = "virtio0"
   }
   
+  disk {
+    type    = "cloudinit"
+    storage = var.storage_pool
+    slot    = "ide2"
+  }
+  
   network {
     id     = 0
     model  = "virtio"
@@ -201,13 +198,13 @@ resource "proxmox_vm_qemu" "tpot_honeypot" {
   ciuser = var.ssh_username
   cipassword = var.ssh_password
   ipconfig0 = "ip=192.168.52.10/24,gw=${var.honeypot_network_gateway}"
-  onboot = true
+  start_at_node_boot = true
 }
 
 # Infection Monkey Server (in SOC Network for testing)
 resource "proxmox_vm_qemu" "infection_monkey" {
   name            = "infection-monkey"
-  vmid            = 155
+  vmid            = 156
   target_node     = var.proxmox_node
   clone           = var.packer_image_name
   full_clone      = true
@@ -225,6 +222,12 @@ resource "proxmox_vm_qemu" "infection_monkey" {
     slot    = "virtio0"
   }
   
+  disk {
+    type    = "cloudinit"
+    storage = var.storage_pool
+    slot    = "ide2"
+  }
+  
   network {
     id     = 0
     model  = "virtio"
@@ -235,18 +238,18 @@ resource "proxmox_vm_qemu" "infection_monkey" {
   ciuser = var.ssh_username
   cipassword = var.ssh_password
   ipconfig0 = "ip=192.168.50.40/24,gw=${var.soc_network_gateway}"
-  onboot = true
+  start_at_node_boot = true
 }
 
 # Router VM for NAT and inter-VLAN routing
 resource "proxmox_vm_qemu" "router" {
   name            = "router-nat"
-  vmid            = 149
+  vmid            = 150
   target_node     = var.proxmox_node
-  clone           = "router-template"
+  clone           = var.packer_image_name
   full_clone      = true
   
-  memory          = 512
+  memory          = 1024
   
   cpu {
     cores = 1
@@ -257,6 +260,12 @@ resource "proxmox_vm_qemu" "router" {
     storage = var.storage_pool
     size    = var.vm_disk_size
     slot    = "virtio0"
+  }
+  
+  disk {
+    type    = "cloudinit"
+    storage = var.storage_pool
+    slot    = "ide2"
   }
   
   # WAN interface - connected to vmbr0 (internet)
@@ -287,26 +296,5 @@ resource "proxmox_vm_qemu" "router" {
   ipconfig0 = "ip=dhcp"
   ipconfig1 = "ip=${var.soc_network_gateway}/24"
   ipconfig2 = "ip=${var.honeypot_network_gateway}/24"
-  
-  # Wait for network to be ready, then configure NAT
-  provisioner "remote-exec" {
-    inline = [
-      "sleep 30",
-      "sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE",
-      "sudo iptables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT",
-      "sudo iptables -A FORWARD -i eth1 -o eth0 -j ACCEPT",
-      "sudo iptables -A FORWARD -i eth2 -o eth0 -j ACCEPT",
-      "sudo netfilter-persistent save"
-    ]
-    
-    connection {
-      type        = "ssh"
-      user        = var.ssh_username
-      password    = var.ssh_password
-      host        = self.default_ipv4_address
-      timeout     = "10m"
-    }
-  }
-  
-  onboot = true
+  start_at_node_boot = true
 }
