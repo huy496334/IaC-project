@@ -9,6 +9,8 @@ resource "proxmox_vm_qemu" "wazuh_server" {
   full_clone      = true
   
   memory          = var.vm_memory * 2
+  scsihw          = "virtio-scsi-pci"
+  boot            = "order=scsi0"
   
   cpu {
     cores = var.vm_cores * 2
@@ -18,7 +20,7 @@ resource "proxmox_vm_qemu" "wazuh_server" {
     type    = "disk"
     storage = var.storage_pool
     size    = var.vm_disk_size
-    slot    = "virtio0"
+    slot    = "scsi0"
   }
   
   disk {
@@ -50,6 +52,8 @@ resource "proxmox_vm_qemu" "suricata_ids" {
   full_clone      = true
   
   memory          = var.vm_memory
+  scsihw          = "virtio-scsi-pci"
+  boot            = "order=scsi0"
   
   cpu {
     cores = var.vm_cores
@@ -59,7 +63,7 @@ resource "proxmox_vm_qemu" "suricata_ids" {
     type    = "disk"
     storage = var.storage_pool
     size    = var.vm_disk_size
-    slot    = "virtio0"
+    slot    = "scsi0"
   }
   
   disk {
@@ -90,6 +94,8 @@ resource "proxmox_vm_qemu" "zabbix_grafana" {
   full_clone      = true
   
   memory          = var.vm_memory * 2
+  scsihw          = "virtio-scsi-pci"
+  boot            = "order=scsi0"
   
   cpu {
     cores = var.vm_cores * 2
@@ -99,7 +105,7 @@ resource "proxmox_vm_qemu" "zabbix_grafana" {
     type    = "disk"
     storage = var.storage_pool
     size    = var.vm_disk_size
-    slot    = "virtio0"
+    slot    = "scsi0"
   }
   
   disk {
@@ -130,6 +136,8 @@ resource "proxmox_vm_qemu" "glpi_tickets" {
   full_clone      = true
   
   memory          = var.vm_memory
+  scsihw          = "virtio-scsi-pci"
+  boot            = "order=scsi0"
   
   cpu {
     cores = var.vm_cores
@@ -139,7 +147,7 @@ resource "proxmox_vm_qemu" "glpi_tickets" {
     type    = "disk"
     storage = var.storage_pool
     size    = var.vm_disk_size
-    slot    = "virtio0"
+    slot    = "scsi0"
   }
   
   disk {
@@ -170,6 +178,8 @@ resource "proxmox_vm_qemu" "tpot_honeypot" {
   full_clone      = true
   
   memory          = var.vm_memory * 2
+  scsihw          = "virtio-scsi-pci"
+  boot            = "order=scsi0"
   
   cpu {
     cores = var.vm_cores * 2
@@ -179,7 +189,7 @@ resource "proxmox_vm_qemu" "tpot_honeypot" {
     type    = "disk"
     storage = var.storage_pool
     size    = var.vm_disk_size * 2
-    slot    = "virtio0"
+    slot    = "scsi0"
   }
   
   disk {
@@ -210,6 +220,8 @@ resource "proxmox_vm_qemu" "infection_monkey" {
   full_clone      = true
   
   memory          = var.vm_memory
+  scsihw          = "virtio-scsi-pci"
+  boot            = "order=scsi0"
   
   cpu {
     cores = var.vm_cores
@@ -219,7 +231,7 @@ resource "proxmox_vm_qemu" "infection_monkey" {
     type    = "disk"
     storage = var.storage_pool
     size    = var.vm_disk_size
-    slot    = "virtio0"
+    slot    = "scsi0"
   }
   
   disk {
@@ -250,6 +262,8 @@ resource "proxmox_vm_qemu" "router" {
   full_clone      = true
   
   memory          = 1024
+  scsihw          = "virtio-scsi-pci"
+  boot            = "order=scsi0"
   
   cpu {
     cores = 1
@@ -259,7 +273,7 @@ resource "proxmox_vm_qemu" "router" {
     type    = "disk"
     storage = var.storage_pool
     size    = var.vm_disk_size
-    slot    = "virtio0"
+    slot    = "scsi0"
   }
   
   disk {
