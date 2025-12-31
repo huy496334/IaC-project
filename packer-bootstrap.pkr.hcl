@@ -1,7 +1,7 @@
 packer {
   required_plugins {
     proxmox = {
-      version = ">= 1.1.5"
+      version = "1.2.3"
       source  = "github.com/hashicorp/proxmox"
     }
   }
@@ -23,6 +23,10 @@ variable "proxmox_api_token_secret" {
 
 variable "username" {
   type = string
+}
+
+variable "ubuntu_username" {
+  type      = string
 }
 
 variable "ubuntu_password" {
@@ -74,7 +78,6 @@ source "proxmox-iso" "ubuntu-bootstrap" {
 
   # HTTP server for cloud-init
   http_directory    = "http"
-  http_bind_address = "10.6.210.2"
 
   # Packer commands to automate the installation
   boot_wait    = "10s"
@@ -88,24 +91,16 @@ source "proxmox-iso" "ubuntu-bootstrap" {
   ]
 
   # SSH access
-  ssh_username = "ubuntu"
+  ssh_username = var.ubuntu_username
   ssh_password = var.ubuntu_password
 
   # Raise the timeout if the installation takes longer
-  ssh_timeout  = "20m"
+  ssh_timeout  = "5m"
 }
 
 build {
   name = "ubuntu-24.04.3-bootstrap"
   sources = ["source.proxmox-iso.ubuntu-bootstrap"]
-
-  # Wait for cloud-init
-  provisioner "shell" {
-    inline = [
-      "cloud-init status --wait",
-      "echo 'Cloud-init completed'"
-    ]
-  }
 
   # System updates
   provisioner "shell" {

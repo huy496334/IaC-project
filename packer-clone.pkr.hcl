@@ -1,7 +1,7 @@
 packer {
   required_plugins {
     proxmox = {
-      version = ">= 1.1.5"
+      version = "1.2.3"
       source  = "github.com/hashicorp/proxmox"
     }
   }
@@ -25,7 +25,16 @@ variable "username" {
   type = string
 }
 
+variable "ubuntu_username" {
+  type = string
+}
+
 variable "password" {
+  type      = string
+  sensitive = true
+}
+
+variable "ubuntu_password" {
   type      = string
   sensitive = true
 }
@@ -47,8 +56,11 @@ source "proxmox-clone" "ubuntu" {
   clone_vm_id = var.clone_vm_id
   vm_name     = "ubuntu-golden-image"
   node        = "pve"
+  vm_id       = 9001
+  
 
   # VM Settings
+  qemu_agent = true
   cores   = 2
   memory  = 2048
 
@@ -58,8 +70,9 @@ source "proxmox-clone" "ubuntu" {
   }
 
   # SSH Settings
-  ssh_username = "ubuntu"
-  ssh_password = var.password
+  ssh_host     = "192.168.1.35"
+  ssh_username = var.ubuntu_username
+  ssh_password = var.ubuntu_password
   ssh_timeout  = "5m"
 }
 
@@ -74,10 +87,17 @@ build {
     ]
   }
 
+  # Clean cloud-init
+  provisioner "shell" {
+    inline = [
+      "sudo cloud-init clean",
+      "echo 'Cloud-init cleaned'"
+    ]
+  }
+
   # Install useful packages (system already updated from bootstrap)
   provisioner "shell" {
     inline = [
-      "sudo apt-get install -y curl wget git vim htop net-tools",
       "echo 'Golden image ready!'"
     ]
   }

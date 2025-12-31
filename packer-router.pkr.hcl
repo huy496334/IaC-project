@@ -1,7 +1,7 @@
 packer {
   required_plugins {
     proxmox = {
-      version = ">= 1.1.5"
+      version = "1.2.3"
       source  = "github.com/hashicorp/proxmox"
     }
   }
@@ -21,84 +21,65 @@ variable "proxmox_api_token_secret" {
   sensitive = true
 }
 
+variable "ubuntu_username" {
+  type = string
+}
+
+variable "password" {
+  type      = string
+  sensitive = true
+}
+
 variable "ubuntu_password" {
   type      = string
   sensitive = true
 }
 
-# Router template from Ubuntu ISO
-source "proxmox-iso" "router" {
+variable "clone_vm_id" {
+  type        = number
+  description = "VM ID to clone from"
+  default     = 9000
+}
+
+# Router template cloned from golden image
+source "proxmox-clone" "router" {
   # Proxmox Connection Settings
   proxmox_url              = var.proxmox_url
   username                 = var.proxmox_api_token_id
   token                    = var.proxmox_api_token_secret
   insecure_skip_tls_verify = true
 
+  # Clone Settings
+  clone_vm_id = var.clone_vm_id
+  vm_name     = "router-template"
+  node        = "pve"
+  vm_id       = 9002
+
   # VM Settings
-  node                 = "pve"
-  vm_id                = 9001
-  vm_name              = "router-template"
-  template_description = "Ubuntu 24.04.3 LTS router template with IP forwarding"
-
-  disks {
-    disk_size    = "20G"
-    format       = "raw"
-    storage_pool = "local-lvm"
-    type         = "virtio"
-  }
-
-  network_adapters {
-    model  = "virtio"
-    bridge = "vmbr0"
-  }
-
-  # Ubuntu Server ISO (live installer)
-  boot_iso {
-    type    = "scsi"
-    iso_file = "local:iso/ubuntu-24.04.3-live-server-amd64.iso"
-    unmount = true
-    keep_cdrom_device = false
-  }
-
-  # VM System Settings
   qemu_agent = true
   cores   = 2
   memory  = 2048
 
-  # VM Hard Disk Settings
-  scsi_controller = "virtio-scsi-single"
+  disks {
+    disk_size    = "20G"
+    storage_pool = "local-lvm"
+  }
 
-  # HTTP server for cloud-init
-  http_directory = "http"
-
-  # Packer commands to automate the installation
-  boot_wait    = "10s"
-  boot_command = [
-    "<esc><wait>",
-    "e<wait>",
-    "<down><down><down><end>",
-    "<bs><bs><bs><bs><wait>",
-    "autoinstall ds=nocloud-net\\;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ ---<wait>",
-    "<f10><wait>",
-  ]
-
-  # SSH access
-  ssh_username = "ubuntu"
+  # SSH Settings
+  ssh_username = var.ubuntu_username
   ssh_password = var.ubuntu_password
-
-  # Raise the timeout if the installation takes longer
-  ssh_timeout  = "20m"
+  ssh_timeout  = "5m"
 }
 
 build {
   name    = "router-template"
-  sources = ["source.proxmox-iso.router"]
+  sources = ["source.proxmox-clone.router"]
 
-  # Wait for cloud-init
+  # Wait for system to be ready
   provisioner "shell" {
     inline = [
-      "cloud-init status --wait",
-      "echo 'Cloud-init completed'"
+      "echo 'Waiting for system to stabilize...'",
+      "sleep 10"
     ]
   }
 
@@ -106,9 +87,7 @@ build {
   provisioner "shell" {
     inline = [
       "sudo apt-get update -y",
-      "sudo apt-get upgrade -y",
-      "sudo apt-get install -y qemu-guest-agent iptables-persistent netfilter-persistent",
-      "sudo systemctl enable qemu-guest-agent"
+      "sudo apt-get install -y iptables-persistent netfilter-persistent",
     ]
   }
 
