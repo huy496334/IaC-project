@@ -29,7 +29,7 @@ variable "proxmox_node" {
 }
 
 variable "clone_vm" {
-  type        = string
+  type        = int
   description = "Name of the cloud template to clone"
 }
 
@@ -62,13 +62,20 @@ source "proxmox-clone" "ubuntu-cloud-custom" {
   node                     = var.proxmox_node
 
   # Clone settings
-  clone_vm = var.clone_vm
-  vm_id    = var.vm_id
-  vm_name  = var.template_name
+  clone_vm   = var.clone_vm
+  vm_id      = var.vm_id
+  vm_name    = var.template_name
+  full_clone = true
 
-  # VM configuration
-  cores  = 2
-  memory = 2048
+  # VM configuration - match the template
+  cores   = 2
+  memory  = 2048
+  os      = "l26"
+  scsihw  = "virtio-scsi-pci"
+  qemu_agent = true
+
+  # Preserve template disk - don't reconfigure
+  # The cloned disk from template will be used as-is
 
   # Network for provisioning (use vmbr0 for internet access during build)
   network_adapters {
@@ -79,6 +86,15 @@ source "proxmox-clone" "ubuntu-cloud-custom" {
   # Cloud-init settings for Packer to connect
   cloud_init              = true
   cloud_init_storage_pool = "local-lvm"
+  
+  # Cloud-init user configuration
+  os                      = "l26"
+  qemu_agent              = true
+  
+  # Set IP via DHCP for provisioning
+  ipconfig {
+    ip = "dhcp"
+  }
 
   # SSH connection
   ssh_username = var.ubuntu_username
