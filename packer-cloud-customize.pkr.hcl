@@ -87,13 +87,16 @@ source "proxmox-clone" "ubuntu-cloud-custom" {
   cloud_init              = true
   cloud_init_storage_pool = "local-lvm"
   
-  # Cloud-init user configuration
-  os                      = "l26"
-  qemu_agent              = true
-  
   # Set IP via DHCP for provisioning
   ipconfig {
     ip = "dhcp"
+  }
+  
+  # Add VirtIO RNG for entropy (fixes crng init stuck issue)
+  rng0 {
+    source    = "/dev/urandom"
+    max_bytes = 1024
+    period    = 1000
   }
 
   # SSH connection
