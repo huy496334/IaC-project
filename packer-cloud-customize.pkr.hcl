@@ -68,11 +68,11 @@ source "proxmox-clone" "ubuntu-cloud-custom" {
   full_clone = true
 
   # VM configuration - match the template
-  cores   = 2
-  memory  = 2048
-  os      = "l26"
-  scsihw  = "virtio-scsi-pci"
-  qemu_agent = true
+  cores          = 2
+  memory         = 2048
+  os             = "l26"
+  scsi_controller = "virtio-scsi-pci"
+  qemu_agent     = true
 
   # Preserve template disk - don't reconfigure
   # The cloned disk from template will be used as-is

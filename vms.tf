@@ -5,12 +5,21 @@ resource "proxmox_vm_qemu" "wazuh_server" {
   name            = "wazuh-server"
   vmid            = 151
   target_node     = var.proxmox_node
-  clone           = var.packer_image_name
+  clone           = var.template_name
   full_clone      = true
   
   memory          = var.vm_memory * 2
   scsihw          = "virtio-scsi-pci"
   boot            = "order=scsi0"
+  
+  serial {
+    id   = 0
+    type = "socket"
+  }
+  
+  vga {
+    type = "serial0"
+  }
   
   cpu {
     cores = var.vm_cores * 2
@@ -48,12 +57,21 @@ resource "proxmox_vm_qemu" "suricata_ids" {
   name            = "suricata-ids"
   vmid            = 152
   target_node     = var.proxmox_node
-  clone           = var.packer_image_name
+  clone           = var.template_name
   full_clone      = true
   
   memory          = var.vm_memory
   scsihw          = "virtio-scsi-pci"
   boot            = "order=scsi0"
+  
+  serial {
+    id   = 0
+    type = "socket"
+  }
+  
+  vga {
+    type = "serial0"
+  }
   
   cpu {
     cores = var.vm_cores
@@ -90,12 +108,21 @@ resource "proxmox_vm_qemu" "zabbix_grafana" {
   name            = "zabbix-grafana"
   vmid            = 153
   target_node     = var.proxmox_node
-  clone           = var.packer_image_name
+  clone           = var.template_name
   full_clone      = true
   
   memory          = var.vm_memory * 2
   scsihw          = "virtio-scsi-pci"
   boot            = "order=scsi0"
+  
+  serial {
+    id   = 0
+    type = "socket"
+  }
+  
+  vga {
+    type = "serial0"
+  }
   
   cpu {
     cores = var.vm_cores * 2
@@ -132,12 +159,21 @@ resource "proxmox_vm_qemu" "glpi_tickets" {
   name            = "glpi-tickets"
   vmid            = 154
   target_node     = var.proxmox_node
-  clone           = var.packer_image_name
+  clone           = var.template_name
   full_clone      = true
   
   memory          = var.vm_memory
   scsihw          = "virtio-scsi-pci"
   boot            = "order=scsi0"
+  
+  serial {
+    id   = 0
+    type = "socket"
+  }
+  
+  vga {
+    type = "serial0"
+  }
   
   cpu {
     cores = var.vm_cores
@@ -174,12 +210,21 @@ resource "proxmox_vm_qemu" "tpot_honeypot" {
   name            = "tpot-honeypot"
   vmid            = 155
   target_node     = var.proxmox_node
-  clone           = var.packer_image_name
+  clone           = var.template_name
   full_clone      = true
   
   memory          = var.vm_memory * 2
   scsihw          = "virtio-scsi-pci"
   boot            = "order=scsi0"
+  
+  serial {
+    id   = 0
+    type = "socket"
+  }
+  
+  vga {
+    type = "serial0"
+  }
   
   cpu {
     cores = var.vm_cores * 2
@@ -216,12 +261,21 @@ resource "proxmox_vm_qemu" "infection_monkey" {
   name            = "infection-monkey"
   vmid            = 156
   target_node     = var.proxmox_node
-  clone           = var.packer_image_name
+  clone           = var.template_name
   full_clone      = true
   
   memory          = var.vm_memory
   scsihw          = "virtio-scsi-pci"
   boot            = "order=scsi0"
+  
+  serial {
+    id   = 0
+    type = "socket"
+  }
+  
+  vga {
+    type = "serial0"
+  }
   
   cpu {
     cores = var.vm_cores
@@ -258,12 +312,21 @@ resource "proxmox_vm_qemu" "router" {
   name            = "router-nat"
   vmid            = 150
   target_node     = var.proxmox_node
-  clone           = var.packer_image_name
+  clone           = var.router_template_name
   full_clone      = true
   
   memory          = 1024
   scsihw          = "virtio-scsi-pci"
   boot            = "order=scsi0"
+  
+  serial {
+    id   = 0
+    type = "socket"
+  }
+  
+  vga {
+    type = "serial0"
+  }
   
   cpu {
     cores = 1
@@ -305,8 +368,8 @@ resource "proxmox_vm_qemu" "router" {
     tag    = var.honeypot_network_vlan
   }
   
-  ciuser = var.ssh_username
-  cipassword = var.ssh_password
+  # Cloud-init settings are inherited from template (includes NAT config)
+  # Only set IP configuration, user/password comes from template
   ipconfig0 = "ip=dhcp"
   ipconfig1 = "ip=${var.soc_network_gateway}/24"
   ipconfig2 = "ip=${var.honeypot_network_gateway}/24"

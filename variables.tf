@@ -23,17 +23,17 @@ variable "proxmox_node" {
   default     = "pve"
 }
 
-# Packer Image Configuration
-variable "packer_image_id" {
-  description = "VM ID of the Packer golden image"
-  type        = number
-  default     = 9000
+# Template Configuration
+variable "template_name" {
+  description = "Name of the cloud-init template"
+  type        = string
+  default     = "ubuntu-cloud-init-template"
 }
 
-variable "packer_image_name" {
-  description = "Name of the Packer golden image"
+variable "router_template_name" {
+  description = "Name of the router template with NAT pre-configured"
   type        = string
-  default     = "ubuntu-base"
+  default     = "ubuntu-router-template"
 }
 
 # Storage Configuration
