@@ -35,6 +35,7 @@ Thumbs.db
 .env
 *.key
 *.pem
+ansible/group_vars/all.yml
 
 # Python script
 sha-512.py
