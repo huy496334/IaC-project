@@ -4,6 +4,9 @@ packer.example.hcl
 crash.log
 crash.*.log
 
+# ansible
+/ansible/group_vars/all.yml
+
 # venv
 venv/
 
