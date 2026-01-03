@@ -1,7 +1,10 @@
 ---
 # All servers common variables
+# Copy this file to all.yml and fill in your credentials
+# cp all.yml.example all.yml
+
 ansible_user: ubuntu
-ansible_ssh_pass: Proxmox10022000
+ansible_ssh_pass: "YOUR_SSH_PASSWORD_HERE"
 ansible_become: yes
 ansible_become_method: sudo
 ansible_python_interpreter: /usr/bin/python3
