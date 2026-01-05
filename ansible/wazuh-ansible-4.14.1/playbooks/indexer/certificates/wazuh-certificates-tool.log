@@ -1,0 +1,6 @@
+05/01/2026 05:11:52 INFO: Verbose logging redirected to /home/huy/Documents/IaC-project/ansible/wazuh-ansible-4.14.1/playbooks/indexer/certificates/wazuh-certificates-tool.log
+05/01/2026 05:11:52 INFO: Generating the root certificate.
+05/01/2026 05:11:53 INFO: Generating Admin certificates.
+05/01/2026 05:11:53 INFO: Admin certificates created.
+05/01/2026 05:11:53 INFO: Generating Wazuh indexer certificates.
+05/01/2026 05:11:53 INFO: Wazuh indexer certificates created.
