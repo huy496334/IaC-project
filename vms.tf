@@ -14,15 +14,6 @@ resource "proxmox_vm_qemu" "wazuh_server" {
   scsihw          = "virtio-scsi-pci"
   boot            = "order=scsi0"
   
-  serial {
-    id   = 0
-    type = "socket"
-  }
-  
-  vga {
-    type = "serial0"
-  }
-  
   cpu {
     cores = var.vm_cores * 2
   }
@@ -50,7 +41,7 @@ resource "proxmox_vm_qemu" "wazuh_server" {
   ciuser = var.ssh_username
   cipassword = var.ssh_password
   sshkeys = var.ssh_public_key
-  ipconfig0 = "ip=192.168.50.10/24,gw=${var.soc_network_gateway}"
+  ipconfig0 = "ip=192.168.50.10/24,gw=${var.soc_network_gateway},nameserver=8.8.8.8 1.1.1.1"
   start_at_node_boot = true
 
   provisioner "remote-exec" {
@@ -86,15 +77,6 @@ resource "proxmox_vm_qemu" "suricata_ids" {
   scsihw          = "virtio-scsi-pci"
   boot            = "order=scsi0"
   
-  serial {
-    id   = 0
-    type = "socket"
-  }
-  
-  vga {
-    type = "serial0"
-  }
-  
   cpu {
     cores = var.vm_cores
   }
@@ -122,7 +104,7 @@ resource "proxmox_vm_qemu" "suricata_ids" {
   ciuser = var.ssh_username
   cipassword = var.ssh_password
   sshkeys = var.ssh_public_key
-  ipconfig0 = "ip=192.168.50.11/24,gw=${var.soc_network_gateway}"
+  ipconfig0 = "ip=192.168.50.11/24,gw=${var.soc_network_gateway},nameserver=8.8.8.8 1.1.1.1"
   start_at_node_boot = true
 
   provisioner "remote-exec" {
@@ -158,15 +140,6 @@ resource "proxmox_vm_qemu" "zabbix_grafana" {
   scsihw          = "virtio-scsi-pci"
   boot            = "order=scsi0"
   
-  serial {
-    id   = 0
-    type = "socket"
-  }
-  
-  vga {
-    type = "serial0"
-  }
-  
   cpu {
     cores = var.vm_cores * 2
   }
@@ -194,7 +167,7 @@ resource "proxmox_vm_qemu" "zabbix_grafana" {
   ciuser = var.ssh_username
   cipassword = var.ssh_password
   sshkeys = var.ssh_public_key
-  ipconfig0 = "ip=192.168.50.20/24,gw=${var.soc_network_gateway}"
+  ipconfig0 = "ip=192.168.50.20/24,gw=${var.soc_network_gateway},nameserver=8.8.8.8 1.1.1.1"
   start_at_node_boot = true
 
   provisioner "remote-exec" {
@@ -230,15 +203,6 @@ resource "proxmox_vm_qemu" "glpi_tickets" {
   scsihw          = "virtio-scsi-pci"
   boot            = "order=scsi0"
   
-  serial {
-    id   = 0
-    type = "socket"
-  }
-  
-  vga {
-    type = "serial0"
-  }
-  
   cpu {
     cores = var.vm_cores
   }
@@ -266,7 +230,7 @@ resource "proxmox_vm_qemu" "glpi_tickets" {
   ciuser = var.ssh_username
   cipassword = var.ssh_password
   sshkeys = var.ssh_public_key
-  ipconfig0 = "ip=192.168.50.30/24,gw=${var.soc_network_gateway}"
+  ipconfig0 = "ip=192.168.50.30/24,gw=${var.soc_network_gateway},nameserver=8.8.8.8 1.1.1.1"
   start_at_node_boot = true
 
   provisioner "remote-exec" {
@@ -302,15 +266,6 @@ resource "proxmox_vm_qemu" "tpot_honeypot" {
   scsihw          = "virtio-scsi-pci"
   boot            = "order=scsi0"
   
-  serial {
-    id   = 0
-    type = "socket"
-  }
-  
-  vga {
-    type = "serial0"
-  }
-  
   cpu {
     cores = var.vm_cores * 2
   }
@@ -338,7 +293,7 @@ resource "proxmox_vm_qemu" "tpot_honeypot" {
   ciuser = var.ssh_username
   cipassword = var.ssh_password
   sshkeys = var.ssh_public_key
-  ipconfig0 = "ip=192.168.52.10/24,gw=${var.honeypot_network_gateway}"
+  ipconfig0 = "ip=192.168.52.10/24,gw=${var.honeypot_network_gateway},nameserver=8.8.8.8 1.1.1.1"
   start_at_node_boot = true
 
   provisioner "remote-exec" {
@@ -374,15 +329,6 @@ resource "proxmox_vm_qemu" "infection_monkey" {
   scsihw          = "virtio-scsi-pci"
   boot            = "order=scsi0"
   
-  serial {
-    id   = 0
-    type = "socket"
-  }
-  
-  vga {
-    type = "serial0"
-  }
-  
   cpu {
     cores = var.vm_cores
   }
@@ -410,7 +356,7 @@ resource "proxmox_vm_qemu" "infection_monkey" {
   ciuser = var.ssh_username
   cipassword = var.ssh_password
   sshkeys = var.ssh_public_key
-  ipconfig0 = "ip=192.168.50.40/24,gw=${var.soc_network_gateway}"
+  ipconfig0 = "ip=192.168.50.40/24,gw=${var.soc_network_gateway},nameserver=8.8.8.8 1.1.1.1"
   start_at_node_boot = true
 
   provisioner "remote-exec" {
@@ -442,15 +388,6 @@ resource "proxmox_vm_qemu" "router" {
   memory          = 2048
   scsihw          = "virtio-scsi-pci"
   boot            = "order=scsi0"
-  
-  serial {
-    id   = 0
-    type = "socket"
-  }
-  
-  vga {
-    type = "serial0"
-  }
   
   cpu {
     cores = var.vm_cores * 2
@@ -495,7 +432,7 @@ resource "proxmox_vm_qemu" "router" {
   ciuser = var.ssh_username
   cipassword = var.ssh_password
   sshkeys = var.ssh_public_key
-  ipconfig0 = "ip=192.168.1.201/24,gw=192.168.1.1"
+  ipconfig0 = "ip=192.168.1.201/24,gw=192.168.1.1,nameserver=192.168.1.3 1.1.1.1"
   ipconfig1 = "ip=192.168.50.254/24"
   ipconfig2 = "ip=192.168.52.254/24"
   start_at_node_boot = true
@@ -503,20 +440,31 @@ resource "proxmox_vm_qemu" "router" {
   provisioner "remote-exec" {
     inline = [
       "sudo apt update",
-      "sudo apt install -y qemu-guest-agent net-tools isc-dhcp-server",
+      "echo 'iptables-persistent iptables-persistent/autosave_v4 boolean true' | sudo debconf-set-selections",
+      "echo 'iptables-persistent iptables-persistent/autosave_v6 boolean true' | sudo debconf-set-selections",
+      "sudo DEBIAN_FRONTEND=noninteractive apt install -y net-tools isc-dhcp-server iptables-persistent ufw",
       "sudo apt upgrade -y",
+      "sleep 3",
+      "sudo mkdir -p /etc/iptables",
       "sudo sysctl -w net.ipv4.ip_forward=1",
       "echo 'net.ipv4.ip_forward=1' | sudo tee -a /etc/sysctl.conf",
-      "sleep 5",
+      "sleep 2",
       "sudo ip addr add 192.168.50.254/24 dev eth1 || true",
       "sudo ip addr add 192.168.52.254/24 dev eth2 || true",
       "sudo ip route add 192.168.50.0/24 via 192.168.50.254 dev eth1 || true",
       "sudo ip route add 192.168.52.0/24 via 192.168.52.254 dev eth2 || true",
+      "sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE",
+      "sudo iptables -A FORWARD -i eth1 -o eth0 -m state --state RELATED,ESTABLISHED -j ACCEPT",
+      "sudo iptables -A FORWARD -i eth0 -o eth1 -j ACCEPT",
+      "sudo iptables -A FORWARD -i eth2 -o eth0 -m state --state RELATED,ESTABLISHED -j ACCEPT",
+      "sudo iptables -A FORWARD -i eth0 -o eth2 -j ACCEPT",
+      "sudo sh -c 'iptables-save > /etc/iptables/rules.v4' || true",
+      "sudo systemctl restart netfilter-persistent || true",
+      "sudo sed -i 's/DEFAULT_FORWARD_POLICY=\"DROP\"/DEFAULT_FORWARD_POLICY=\"ACCEPT\"/' /etc/default/ufw",
       "sudo ufw --force enable || true",
       "sudo ufw allow from 192.168.50.0/24 to 192.168.52.0/24 || true",
       "sudo ufw allow from 192.168.52.0/24 to 192.168.50.0/24 || true",
-      "sudo systemctl start qemu-guest-agent",
-      "sudo systemctl enable qemu-guest-agent"
+      "sudo ufw reload || true"
     ]
     
     connection {
