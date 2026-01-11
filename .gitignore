@@ -3,6 +3,7 @@ packer.pkrvars.hcl
 packer.example.hcl
 crash.log
 crash.*.log
+packer/
 
 # ansible
 /ansible/group_vars/all.yml
