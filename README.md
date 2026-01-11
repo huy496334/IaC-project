@@ -1,121 +1,315 @@
-# Golden Image for Proxmox
+# SOC Lab Infrastructure-as-Code
 
-This repository contains documentation and helper files for creating and managing Proxmox VM templates using Ubuntu cloud images and cloud-init. Packer configs are retained for reference but the preferred workflow is:
+Compleet Security Operations Center lab gebouwd met Terraform (infrastructuur) en Ansible (configuratiebeheer). Implementeert een multi-VM-omgeving met Wazuh SIEM, Suricata IDS, Zabbix monitoring, GLPI ticketing, T-Pot honeypot en Infection Monkey pentest framework.
 
-- Import an Ubuntu cloud image into Proxmox and create a template.
-- Use cloud-init for initial instance configuration (SSH keys, users).
-- Use Ansible to perform post-clone configuration and package installation.
+**Status**: ✅ Wazuh, Suricata, Zabbix, Grafana, GLPI, T-Pot, Infection Monkey allemaal operationeel
 
-## Current config summary
+## Infrastructuur Overzicht
 
-- **Base Image**: Ubuntu 24.04 Noble Cloud Image
-- **Storage**: local-lvm
-- **Disk Format**: raw
-- **CPU**: 2 cores
-- **Memory**: 2048 MB
-- **Cloud-init**: enabled
+### Architectuur
 
-## Troubleshooting
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     Proxmox 7.0+                                │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                   │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐           │
+│  │   Router     │  │ Wazuh Server │  │  Suricata    │           │
+│  │  (NAT/VLAN)  │  │ (All-in-one) │  │  IDS (v8.0)  │           │
+│  │  VLAN 50     │  │  VLAN 50     │  │  VLAN 50     │           │
+│  │ 192.168.50.1 │  │ 192.168.50.10│  │ 192.168.50.11│           │
+│  └──────────────┘  └──────────────┘  └──────────────┘           │
+│                                                                   │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐           │
+│  │  Zabbix +    │  │    GLPI      │  │   T-Pot      │           │
+│  │  Grafana     │  │  Ticketing   │  │  Honeypot    │           │
+│  │  VLAN 50     │  │  VLAN 50     │  │  VLAN 52     │           │
+│  │ 192.168.50.20│  │ 192.168.50.30│  │ 192.168.52.10│           │
+│  └──────────────┘  └──────────────┘  └──────────────┘           │
+│                                                                   │
+│  ┌──────────────┐                                               │
+│  │  Infection   │                                               │
+│  │  Monkey      │                                               │
+│  │  VLAN 50     │                                               │
+│  │ 192.168.50.40│                                               │
+│  └──────────────┘                                               │
+└─────────────────────────────────────────────────────────────────┘
+```
 
-# Golden Image for Proxmox (cloud-image + cloud-init)
+### Geïmplementeerde VMs
 
-This repository previously used Packer to build templates. Workflow has changed:
+| VM | IP | Doel | CPU | RAM | Schijf | Status |
+|---|---|---|---|---|---|---|
+| router | 192.168.50.1 | NAT gateway, VLAN bridge, DNS | 2 | 2GB | 20GB | ✅ Actief |
+| wazuh-server | 192.168.50.10 | Wazuh indexer + dashboard + manager | 2 | 6GB | **100GB** | ✅ Actief |
+| suricata-ids | 192.168.50.11 | Network IDS (v8.0.2) | 1 | 1GB | 20GB | ✅ Actief |
+| zabbix-grafana | 192.168.50.20 | Monitoring & visualisatie | 2 | 2GB | 20GB | ✅ Actief |
+| glpi-tickets | 192.168.50.30 | IT ticketing systeem | 1 | 1GB | 20GB | ✅ Actief |
+| tpot-honeypot | 192.168.52.10 | Honeypot (geïsoleerde VLAN 52) | 2 | 2GB | 40GB | ✅ Actief |
+| infection-monkey | 192.168.50.40 | Pentest/breach simulatie | 1 | 1GB | 20GB | ✅ Actief |
 
-- We now use the official Ubuntu cloud image + cloud-init to create a Proxmox template.
-- Packer configs remain in the repo for reference, but Packer is no longer required.
+## Snelle Start
 
-## Why switch
+### Vereisten
 
-- Cloud images are lightweight, maintained by Ubuntu, and boot quickly.
-- `cloud-init` provides deterministic, repeatable initial configuration.
-- Creating a single template in Proxmox from the cloud image is a small, one-time operation; further customization is handled with Ansible.
+- Proxmox 7.0+ met netwerktogang
+- Terraform 1.0+
+- Ansible 2.13+
+- Ubuntu 24.04 cloud image geïmporteerd naar Proxmox
+- SSH sleutelpaar (`~/.ssh/id_ed25519`)
 
-## Quick workflow (one-time template creation)
-
-1. Download the Ubuntu cloud image locally:
+### Implementeer Infrastructuur (Terraform)
 
 ```bash
-cd /tmp
-wget https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img
+cd /home/huy/Documents/IaC-project
+terraform init
+terraform plan
+terraform apply -auto-approve
 ```
 
-2. (Optional) Convert to raw for `local-lvm`, or copy the QCOW2 directly. Proxmox's
-`qm importdisk` can accept QCOW2 or RAW images, so conversion is not strictly required:
+Dit maakt alle 7 VMs aan met networking, storage en cloud-init configuratie.
+
+### Configureer met Ansible
 
 ```bash
-# optional: convert to raw
-qemu-img convert -f qcow2 -O raw noble-server-cloudimg-amd64.img noble-server-cloudimg-amd64.raw
-scp noble-server-cloudimg-amd64.raw root@<proxmox-host>:/root/
+cd ansible/wazuh-ansible-4.14.1/playbooks
 
-# or copy the original QCOW2 and import it directly on the Proxmox host
-scp noble-server-cloudimg-amd64.img root@<proxmox-host>:/root/
+# 1. Verifieer dat hosts bereikbaar zijn
+ansible all -i ../inventory/hosts.ini -m ping
+
+# 2. Implementeer Wazuh (indexer + dashboard + manager + filebeat)
+ansible-playbook wazuh-indexer-and-dashboard.yml -i ../inventory/hosts.ini -b -K
+ansible-playbook wazuh-manager-oss.yml -i ../inventory/hosts.ini -b -K
+
+# 3. Implementeer Suricata IDS
+ansible-playbook suricata-install.yml -i ../inventory/hosts.ini -b -K
+
+# 4. Implementeer Zabbix + Grafana
+ansible-playbook zabbix-grafana-install.yml -i ../inventory/hosts.ini -b -K
+
+# 5. Implementeer overige services
+ansible-playbook glpi-install.yml -i ../inventory/hosts.ini -b -K
+ansible-playbook tpot-install.yml -i ../inventory/hosts.ini -b -K
+ansible-playbook infection-monkey-install.yml -i ../inventory/hosts.ini -b -K
 ```
 
-3. On the Proxmox host, create a VM and import the disk:
-
+Of voer alles tegelijk uit:
 ```bash
-# choose an available VMID, e.g. 9002
-qm create 9002 --name ubuntu-cloud-base --memory 2048 --cores 2 --net0 virtio,bridge=vmbr0
-qm importdisk 9002 /root/noble-server-cloudimg-amd64.raw local-lvm
-qm set 9002 --scsi0 local-lvm:vm-9002-disk-0
-qm set 9002 --boot c --bootdisk scsi0
-qm set 9002 --ide2 local:cloudinit
-# Optional: set an initial cloud-init user/password or SSH key
-qm set 9002 --ciuser ubuntu --cipassword <password>
-# Convert to template
-qm template 9002
+./run-all-playbooks.sh
 ```
 
-After this you have a Proxmox template that can be cloned for deployments.
+## Component Details
 
-## Using cloud-init (seed files)
+### Wazuh Security Platform (v4.7.0)
 
-- Place your `user-data` and `meta-data` in a directory and use the Proxmox cloud-init drive or Packer/Ansible to provide the seed.
-- Example `user-data` should set `ssh_authorized_keys` or a password, enable users, and install packages if desired.
+**Status**: ✅ GEÏMPLEMENTEERD & OPERATIONEEL
 
-## Ansible — next steps
+- **Indexer** (OpenSearch): 9200, 9600
+- **Dashboard**: HTTPS, zelf-ondertekend certificaat, standaard poort 443
+- **Manager**: Kern monitoring engine
+- **Filebeat**: Agent → indexer pipeline
+- **Standaard Creds**: `admin` / `changeme` (onmiddellijk wijzigen)
 
-We're switching customization to Ansible. Suggested next steps:
-
-1. Create an `inventory/` directory and add host groups for your environments.
-2. Add a `playbooks/` directory and create a `golden-image.yml` playbook to perform updates and enable `qemu-guest-agent` on cloned VMs.
-3. Use `ansible-playbook -i inventory/hosts playbooks/golden-image.yml` to provision clones.
-
-A minimal Ansible checklist (to add to the repo):
-
-- `inventory/hosts` — host definitions
-- `playbooks/golden-image.yml` — tasks: `apt update/upgrade`, install `qemu-guest-agent`, enable services, cleanup
-- `roles/` — optionally split tasks into roles
-
-## Example Ansible task snippet
-
-```yaml
-- name: Ensure qemu-guest-agent installed
-	become: true
-	apt:
-		name: qemu-guest-agent
-		state: present
-		update_cache: yes
-
-- name: Enable qemu-guest-agent
-	become: true
-	systemd:
-		name: qemu-guest-agent
-		enabled: yes
-		state: started
+**Toegang**:
+```
+https://192.168.50.10:443/app/wazuh
 ```
 
-## Notes
+**Belangrijkste Functies**:
+- Realtime dreigingsdetectie
+- Logboekaggregatie & analyse
+- Compliance rapportage (PCI-DSS, CIS, etc.)
+- 100GB schijf voor logboeken (onlangs uitgebreid van 20GB)
 
-- If you want to fully automate the import process, you can script the `qm` commands or run them via a CI job that has SSH access to the Proxmox host.
-- Keep secrets out of the repo; use Vault or CI secret storage for credentials.
+### Suricata IDS (v8.0.2)
 
-## Resources
+**Status**: ✅ GEÏMPLEMENTEERD & OPERATIONEEL
 
-- Ubuntu Cloud Images: https://cloud-images.ubuntu.com/
-- Proxmox `qm` manual: https://pve.proxmox.com/pve-docs/
-- Ansible docs: https://docs.ansible.com/
+- **Modus**: Network IDS op eth1
+- **Logging**: EVE JSON formaat
+- **Regels**: Community regels ingeschakeld
+- **Geheugen**: ~37MB
 
----
+**Belangrijkste Functies**:
+- Netwerkverkeerscontrole
+- TLS fingerprinting
+- DNS logging
+- SSL/TLS certificaatextractie
 
-If you want, I can add a starter `inventory/` and `playbooks/golden-image.yml` to this repo and create an initial Ansible playbook that performs the `apt` updates and installs `qemu-guest-agent`.
+### Zabbix 7.0 + Grafana
+
+**Status**: ✅ GEÏMPLEMENTEERD & OPERATIONEEL
+
+**Zabbix Componenten**:
+- Server: Monitoring engine
+- Frontend: Web dashboard (http://192.168.50.20/zabbix)
+- Agent: Host metrics collectie
+- Database: MySQL met Zabbix schema
+
+**Grafana**:
+- Poort: 3000
+- Dashboard visualisatie & alerting
+- Standaard: `admin` / `admin`
+
+**Geplande Functies**:
+- VM CPU/Memory/Disk monitoring
+- Wazuh integratie
+- Alert drempels & meldingen
+
+### GLPI Ticketing
+
+**Status**: ✅ GEÏMPLEMENTEERD & OPERATIONEEL
+
+- IT Service Management
+- Ticket tracking & resolutie
+- Asset inventaris
+- Knowledge base
+
+### T-Pot Honeypot
+
+**Status**: ✅ GEÏMPLEMENTEERD & OPERATIONEEL
+
+- Geïsoleerde honeypot omgeving (VLAN 52)
+- Meerdere honeypot engines (Cowrie, Dionaea, Suricata)
+- Aanvalsverzameling & analyse
+
+### Infection Monkey
+
+**Status**: ✅ GEÏMPLEMENTEERD & OPERATIONEEL
+
+- Geautomatiseerde penetratie testen
+- Laterale bewegingssimulatie
+- Kwetsbaarheidsscanning
+- Beveiligingspostuuranalyse
+
+## Bestandsstructuur
+
+```
+/home/huy/Documents/IaC-project/
+├── LICENSE
+├── README.md (dit bestand)
+├── main.tf                          # Terraform hoofdconfig
+├── vms.tf                           # VM definities (7 VMs)
+├── variables.tf                     # Terraform variabelen
+├── packer.pkr.hcl                   # Packer config (legacy, referentie)
+├── ansible/
+│   └── wazuh-ansible-4.14.1/
+│       ├── inventory/
+│       │   └── hosts.ini            # Ansible inventaris
+│       └── playbooks/
+│           ├── ansible.cfg          # Ansible configuratie
+│           ├── wazuh-indexer-and-dashboard.yml
+│           ├── wazuh-manager-oss.yml
+│           ├── suricata-install.yml
+│           ├── zabbix-grafana-install.yml
+│           ├── glpi-install.yml
+│           ├── tpot-install.yml
+│           ├── infection-monkey-install.yml
+│           └── run-all-playbooks.sh
+└── .git/                            # Git repository
+```
+
+## Implementatiestatus
+
+### ✅ Voltooid
+
+- **Git**: Repository geïnitialiseerd en gesynchroniseerd
+- **Terraform**: Alle 7 VMs aangemaakt met juiste networking
+- **Netwerk**: VLANs (50, 52), NAT, DNS, routing geconfigureerd
+- **Wazuh**: Indexer + Dashboard + Manager + Filebeat (allemaal actief)
+- **Suricata**: v8.0.2 IDS operationeel
+- **Ansible**: Inventaris geconfigureerd, SSH geverifieerd, host key checking ingeschakeld
+- **Schijf Uitbreiding**: Wazuh server uitgebreid van 20GB naar 100GB
+- **Zabbix**: v7.0 met Grafana volledig geïmplementeerd
+- **GLPI**: Ticketing systeem operationeel
+- **T-Pot**: Honeypot omgeving actief
+- **Infection Monkey**: Pentest framework ingesteld
+
+### 🔧 In Afwachting
+
+- Aanvullende functies en integraties (aangepaste dashboards, geavanceerde alerting, etc.)
+
+## Probleemoplossing
+
+### VM connectiviteitsproblemen
+
+Controleer SSH connectiviteit:
+```bash
+ssh -i ~/.ssh/id_ed25519 ubuntu@192.168.50.10
+```
+
+Verifieer Ansible:
+```bash
+ansible all -i ansible/wazuh-ansible-4.14.1/inventory/hosts.ini -m ping
+```
+
+### Wazuh toegangsproblemen
+
+Controleer servicestatus:
+```bash
+ssh ubuntu@192.168.50.10
+sudo systemctl status wazuh-indexer wazuh-manager wazuh-dashboard
+```
+
+Stel wachtwoord opnieuw in (indien nodig):
+```bash
+# Op wazuh-server
+sudo -u wazuh /usr/share/wazuh/scripts/wazuh-password-tool.sh -u admin -p newpassword
+```
+
+### Schijfruimte op wazuh-server
+
+Controleer huidigegebruik:
+```bash
+ssh ubuntu@192.168.50.10 df -h
+```
+
+Wis oude logboeken indien nodig:
+```bash
+ssh ubuntu@192.168.50.10 sudo journalctl --vacuum=100M
+```
+
+### Ansible SSH-sleutel problemen
+
+Zorg ervoor dat sleutel geladen is:
+```bash
+ssh-add ~/.ssh/id_ed25519
+ssh-agent -l
+```
+
+Controleer ansible.cfg op juist sleutelpad:
+```bash
+grep private_key_file ansible/wazuh-ansible-4.14.1/playbooks/ansible.cfg
+```
+
+## Veiligheidsopmerkingen
+
+⚠️ **Standaard Inloggegevens**: Onmiddellijk wijzigen in productie
+
+- Wazuh: `admin` / `changeme`
+- Grafana: `admin` / `admin`
+- Zabbix: `admin` / `zabbix`
+- MySQL: `zabbix` / `zabbix123`
+
+⚠️ **SSL Certificaten**: Zelf-ondertekend, installeer juiste certificaten voor productie
+
+⚠️ **Firewall**: Lab omgeving heeft permissieve regels; beperk in productie
+
+## Volgende Stappen
+
+1. Configureer monitoring en alerting
+2. Maak beveiligingsdashboards
+3. Implementeer logboekbewaaringsbeleid
+4. Stel geautomatiseerde back-ups in
+5. Integreer externe dreigingsinformatie
+6. Voer regelmatige penetratietests uit
+
+## Bronnen
+
+- **Terraform**: https://registry.terraform.io/providers/Telmate/proxmox/latest
+- **Wazuh**: https://documentation.wazuh.com/
+- **Suricata**: https://suricata.io/
+- **Zabbix**: https://www.zabbix.com/documentation/
+- **Grafana**: https://grafana.com/docs/
+- **Ansible**: https://docs.ansible.com/
+- **Ubuntu Cloud Images**: https://cloud-images.ubuntu.com/
