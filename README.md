@@ -50,15 +50,73 @@ Compleet Security Operations Center lab gebouwd met Terraform (infrastructuur) e
 
 ## Snelle Start
 
+De implementatie bestaat uit **3 hoofdstappen**:
+
+1. **setup-ubuntu-cloudimg.sh**: Maak de Ubuntu cloud image template in Proxmox
+2. **Terraform**: Implementeer alle 7 VMs met netwerken
+3. **Ansible**: Installeer en configureer alle applicaties
+
 ### Vereisten
 
-- Proxmox 7.0+ met netwerktogang
+- Proxmox 7.0+ met netwerktogang en SSH toegang
 - Terraform 1.0+
 - Ansible 2.13+
-- Ubuntu 24.04 cloud image geïmporteerd naar Proxmox
 - SSH sleutelpaar (`~/.ssh/id_ed25519`)
+- `curl` en `git` geïnstalleerd
 
-### Implementeer Infrastructuur (Terraform)
+### Voorbereidende Configuratie
+
+#### 1. Genereer SSH Key Pair (als je dat nog niet hebt)
+
+```bash
+ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519 -N ""
+```
+
+Dit maakt een Ed25519 sleutelpaar aan zonder passphrase. De openbare sleutel wordt automatisch naar je Proxmox VMs gestuurd via cloud-init.
+
+#### 2. Maak terraform.tfvars
+
+Kopieer de example file en pas deze aan met je Proxmox instellingen:
+
+```bash
+cp terraform.tfvars.example terraform.tfvars
+nano terraform.tfvars
+```
+
+Vul je Proxmox configuratie in:
+
+```hcl
+proxmox_url             = "https://your-proxmox-host:8006"
+proxmox_api_token_id    = "terraform@pam!terraform"
+proxmox_api_token_secret = "your-api-token-secret"
+proxmox_node            = "pve"
+```
+
+**Hoe je Proxmox API token aanmaakt:**
+
+1. Log in op Proxmox web interface
+2. Ga naar Datacenter → Permissions → API Tokens
+3. Klik "Add"
+4. Vul in: User = `terraform@pam`, Token ID = `terraform`
+5. Zet "Privilege Separation" uit
+6. Kopieer het Token en sla het op in terraform.tfvars
+
+Voor meer details, zie de officiële documentatie:
+[Terraform Proxmox Provider Documentation](https://registry.terraform.io/providers/Terraform-for-Proxmox/proxmox/latest/docs)
+
+### Stap 1: Maak Ubuntu Cloud Image Template
+
+```bash
+cd /home/huy/Documents/IaC-project
+bash setup-ubuntu-cloudimg.sh
+```
+
+Dit script:
+- Downloadt de officiële Ubuntu 24.04 cloud image
+- Importeert het in Proxmox
+- Maakt een herbruikbare template aan
+
+### Stap 2: Implementeer Infrastructuur (Terraform)
 
 ```bash
 cd /home/huy/Documents/IaC-project
@@ -67,35 +125,61 @@ terraform plan
 terraform apply -auto-approve
 ```
 
-Dit maakt alle 7 VMs aan met networking, storage en cloud-init configuratie.
+Dit maakt alle 7 VMs aan:
+- Router (NAT gateway)
+- Wazuh server (100GB schijf)
+- Suricata IDS
+- Zabbix + Grafana
+- GLPI ticketing
+- T-Pot honeypot
+- Infection Monkey
 
-### Configureer met Ansible
+Met juiste networking, storage en cloud-init configuratie.
+
+### Stap 3: Configureer met Ansible
 
 ```bash
-cd ansible/wazuh-ansible-4.14.1/playbooks
+cd ansible/playbooks
 
-# 1. Verifieer dat hosts bereikbaar zijn
+# Verifieer dat alle hosts bereikbaar zijn
 ansible all -i ../inventory/hosts.ini -m ping
+```
 
-# 2. Implementeer Wazuh (indexer + dashboard + manager + filebeat)
+**Optie A: Voer alle playbooks tegelijk uit**
+
+```bash
+./run-all-playbooks.sh
+```
+
+**Optie B: Voer playbooks individueel uit**
+
+```bash
+# Implementeer Wazuh (indexer + dashboard + manager + filebeat)
 ansible-playbook wazuh-indexer-and-dashboard.yml -i ../inventory/hosts.ini -b -K
 ansible-playbook wazuh-manager-oss.yml -i ../inventory/hosts.ini -b -K
 
-# 3. Implementeer Suricata IDS
+# Implementeer Suricata IDS
 ansible-playbook suricata-install.yml -i ../inventory/hosts.ini -b -K
 
-# 4. Implementeer Zabbix + Grafana
+# Implementeer Zabbix + Grafana
 ansible-playbook zabbix-grafana-install.yml -i ../inventory/hosts.ini -b -K
 
-# 5. Implementeer overige services
+# Implementeer overige services
 ansible-playbook glpi-install.yml -i ../inventory/hosts.ini -b -K
 ansible-playbook tpot-install.yml -i ../inventory/hosts.ini -b -K
 ansible-playbook infection-monkey-install.yml -i ../inventory/hosts.ini -b -K
 ```
 
-Of voer alles tegelijk uit:
-```bash
-./run-all-playbooks.sh
+### Workflow Samenvatting
+
+```
+setup-ubuntu-cloudimg.sh
+        ↓
+    Terraform
+        ↓
+      Ansible
+        ↓
+   SOC Lab Ready ✅
 ```
 
 ## Component Details

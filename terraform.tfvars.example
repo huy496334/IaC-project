@@ -1,0 +1,103 @@
+# ============================================================================
+# Terraform Configuration Example
+# ============================================================================
+# Kopieer dit bestand naar terraform.tfvars en vul je eigen waarden in.
+# Zorg ervoor dat terraform.tfvars NIET in git wordt gecommit (zie .gitignore)
+#
+# cp terraform.tfvars.example terraform.tfvars
+# ============================================================================
+
+# Proxmox API Configuration
+# ============================================================================
+# Vervang de volgende waarden met je Proxmox instellingen
+
+# Proxmox URL (bijv. https://192.168.1.100:8006)
+proxmox_url = "https://your-proxmox-host:8006"
+
+# Proxmox API Token ID
+# Formaat: username@realm!tokenname
+# Bijv: terraform@pam!terraform
+# Je kunt dit aanmaken via Proxmox UI: Datacenter → Permissions → API Tokens
+proxmox_api_token_id = "terraform@pam!terraform"
+
+# Proxmox API Token Secret
+# Dit is het geheime token. Sla dit op een VEILIGE plaats op!
+# Maak dit NIET publiek en commit het NIET naar git.
+proxmox_api_token_secret = "your-api-token-secret-here"
+
+# ============================================================================
+# Proxmox Node Configuration (optioneel)
+# ============================================================================
+# Deze waarden hebben standaardwaarden. Pas alleen aan als nodig.
+
+# Proxmox node naam (standaard: "pve")
+proxmox_node = "pve"
+
+# Cloud-init template naam (standaard: "ubuntu-2404-cloudimg")
+template_name = "ubuntu-2404-cloudimg"
+
+# ============================================================================
+# Network Configuration (optioneel)
+# ============================================================================
+# De standaardwaarden zijn voorgeconfigureerd en geoptimaliseerd voor
+# het SOC lab. Wijzig alleen als je een ander netwerk setup hebt.
+
+# SOC Network VLAN ID (standaard: 50)
+soc_network_vlan = 50
+
+# SOC Network subnet CIDR (standaard: 192.168.50.0/24)
+soc_network_subnet = "192.168.50.0/24"
+
+# Honeypot Network VLAN ID (standaard: 52)
+honeypot_network_vlan = 52
+
+# Honeypot Network subnet CIDR (standaard: 192.168.52.0/24)
+honeypot_network_subnet = "192.168.52.0/24"
+
+# ============================================================================
+# Storage Configuration (optioneel)
+# ============================================================================
+
+# Storage pool naam (standaard: "local-lvm")
+storage_pool = "local-lvm"
+
+# ============================================================================
+# SSH Public Key Configuration
+# ============================================================================
+# Het pad naar je SSH openbare sleutel. Dit wordt gebruikt voor cloud-init
+# om SSH toegang in te stellen voor alle VMs.
+
+# Zorg ervoor dat je dit sleutelpaar hebt gegenereerd:
+# ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519 -N ""
+ssh_public_key_path = "~/.ssh/id_ed25519.pub"
+
+# ============================================================================
+# WAARSCHUWINGEN & VEILIGHEIDSTIPS
+# ============================================================================
+# 1. COMMIT NOOIT terraform.tfvars NAAR GIT!
+#    Dit bestand bevat gevoelige informatie (API tokens)
+#    Het staat al in .gitignore
+#
+# 2. BESCHERM JE API TOKEN!
+#    - Sla het op in een password manager
+#    - Deel het NOOIT in fora of chat
+#    - Roteer het regelmatig
+#
+# 3. SSH KEY BACKUP
+#    - Maak een backup van ~/.ssh/id_ed25519
+#    - Bewaar het op een VEILIGE plaats
+#    - Verlies het NIET, want dan kun je niet in je VMs
+#
+# 4. PROXMOX API TOKEN SETUP
+#    Stappen om het token aan te maken in Proxmox:
+#    1. Log in op Proxmox web interface (https://your-proxmox-host:8006)
+#    2. Ga naar: Datacenter → Permissions → API Tokens
+#    3. Klik op: "Add" knop
+#    4. Vul in:
+#       - User: terraform@pam
+#       - Token ID: terraform
+#       - Privilege Separation: Uit (zet uit)
+#    5. Klik "Add"
+#    6. Kopieer het getoonde token en plak het in proxmox_api_token_secret
+#
+# ============================================================================
