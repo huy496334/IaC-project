@@ -1,0 +1,124 @@
+---
+- name: Install Zabbix Server and Grafana
+  hosts: zabbix
+  become: yes
+  
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install dependencies
+      apt:
+        name:
+          - curl
+          - wget
+          - mysql-server
+          - apache2
+          - php
+          - php-mysql
+          - php-gd
+          - php-bcmath
+        state: present
+
+    - name: Download Zabbix release package
+      get_url:
+        url: https://repo.zabbix.com/zabbix/7.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_latest_7.0+ubuntu24.04_all.deb
+        dest: /tmp/zabbix-release.deb
+
+    - name: Install Zabbix release package
+      apt:
+        deb: /tmp/zabbix-release.deb
+
+    - name: Update apt cache after Zabbix repo
+      apt:
+        update_cache: yes
+
+    - name: Install Zabbix server, frontend, and agent
+      apt:
+        name:
+          - zabbix-server-mysql
+          - zabbix-frontend-php
+          - zabbix-apache-conf
+          - zabbix-sql-scripts
+          - zabbix-agent
+        state: present
+
+    - name: Start and enable MySQL
+      systemd:
+        name: mysql
+        state: started
+        enabled: yes
+
+    - name: Create Zabbix database
+      shell: mysql -uroot -e "create database zabbix character set utf8mb4 collate utf8mb4_bin;" 2>/dev/null || true
+
+    - name: Create Zabbix MySQL user
+      shell: mysql -uroot -e "create user zabbix@localhost identified by 'zabbix123';" 2>/dev/null || true
+
+    - name: Grant privileges to Zabbix user
+      shell: mysql -uroot -e "grant all privileges on zabbix.* to zabbix@localhost; set global log_bin_trust_function_creators = 1;"
+
+    - name: Import Zabbix database schema
+      shell: zcat /usr/share/zabbix-sql-scripts/mysql/server.sql.gz | mysql --default-character-set=utf8mb4 -uzabbix -pzabbix123 zabbix
+
+    - name: Disable log_bin_trust_function_creators
+      shell: mysql -uroot -e "set global log_bin_trust_function_creators = 0;"
+
+    - name: Configure Zabbix server database password
+      lineinfile:
+        path: /etc/zabbix/zabbix_server.conf
+        regexp: "^DBPassword="
+        line: "DBPassword=zabbix123"
+
+    - name: Start and enable Zabbix services
+      systemd:
+        name: "{{ item }}"
+        state: started
+        enabled: yes
+      loop:
+        - zabbix-server
+        - zabbix-agent
+        - apache2
+
+    - name: Install Grafana repository GPG key
+      shell: |
+        mkdir -p /etc/apt/keyrings/
+        wget -q -O - https://apt.grafana.com/gpg.key | gpg --dearmor | tee /etc/apt/keyrings/grafana.gpg > /dev/null
+
+    - name: Add Grafana repository
+      shell: echo "deb [signed-by=/etc/apt/keyrings/grafana.gpg] https://apt.grafana.com stable main" | tee -a /etc/apt/sources.list.d/grafana.list
+
+    - name: Update apt cache for Grafana
+      apt:
+        update_cache: yes
+
+    - name: Install Grafana
+      apt:
+        name: grafana
+        state: present
+
+    - name: Start and enable Grafana
+      systemd:
+        name: grafana-server
+        state: started
+        enabled: yes
+
+    - name: Display access information
+      debug:
+        msg:
+          - "✅ Zabbix Server and Grafana installation complete!"
+          - ""
+          - "🔗 Service URLs:"
+          - "  Zabbix Web: http://192.168.50.20/zabbix"
+          - "  Grafana: http://192.168.50.20:3000"
+          - ""
+          - "📊 Default Credentials:"
+          - "  Zabbix: admin/zabbix"
+          - "  Grafana: admin/admin"
+          - ""
+          - "�� Database:"
+          - "  Host: localhost"
+          - "  User: zabbix"
+          - "  Password: zabbix123"

@@ -1,0 +1,190 @@
+2026-01-11 19:20:09,717 p=25999 u=huy n=ansible INFO| PLAY [Install Zabbix Server and Grafana] ***************************************
+2026-01-11 19:20:09,722 p=25999 u=huy n=ansible INFO| TASK [Gathering Facts] *********************************************************
+2026-01-11 19:20:11,443 p=25999 u=huy n=ansible WARNING| [WARNING]: Host 'zabbix-grafana' is using the discovered Python interpreter at '/usr/bin/python3.12', but future installation of another Python interpreter could cause a different interpreter to be discovered. See https://docs.ansible.com/ansible-core/2.19/reference_appendices/interpreter_discovery.html for more information.
+
+2026-01-11 19:20:11,444 p=25999 u=huy n=ansible INFO| ok: [zabbix-grafana]
+2026-01-11 19:20:11,447 p=25999 u=huy n=ansible INFO| TASK [Update apt cache] ********************************************************
+2026-01-11 19:20:15,754 p=25999 u=huy n=ansible INFO| changed: [zabbix-grafana]
+2026-01-11 19:20:15,757 p=25999 u=huy n=ansible INFO| TASK [Install dependencies] ****************************************************
+2026-01-11 19:20:27,813 p=25999 u=huy n=ansible INFO| changed: [zabbix-grafana]
+2026-01-11 19:20:27,816 p=25999 u=huy n=ansible INFO| TASK [Add Zabbix repository key] ***********************************************
+2026-01-11 19:20:28,942 p=25999 u=huy n=ansible INFO| changed: [zabbix-grafana]
+2026-01-11 19:20:28,944 p=25999 u=huy n=ansible INFO| TASK [Add Zabbix repository] ***************************************************
+2026-01-11 19:20:29,260 p=25999 u=huy n=ansible INFO| changed: [zabbix-grafana]
+2026-01-11 19:20:29,262 p=25999 u=huy n=ansible INFO| TASK [Update apt cache after adding Zabbix repo] *******************************
+2026-01-11 19:21:04,910 p=25999 u=huy n=ansible WARNING| [WARNING]: Failed to update cache after 1 retries due to E:The repository 'https://repo.zabbix.com/zabbix/6.0 noble Release' does not have a Release file., retrying
+
+2026-01-11 19:21:04,910 p=25999 u=huy n=ansible WARNING| [WARNING]: Sleeping for 1 seconds, before attempting to refresh the cache again
+
+2026-01-11 19:21:04,911 p=25999 u=huy n=ansible WARNING| [WARNING]: Failed to update cache after 2 retries due to W:Updating from such a repository can't be done securely, and is therefore disabled by default., W:See apt-secure(8) manpage for repository creation and user configuration details., E:The repository 'https://repo.zabbix.com/zabbix/6.0 noble Release' does not have a Release file., retrying
+
+2026-01-11 19:21:04,911 p=25999 u=huy n=ansible WARNING| [WARNING]: Sleeping for 2 seconds, before attempting to refresh the cache again
+
+2026-01-11 19:21:04,911 p=25999 u=huy n=ansible WARNING| [WARNING]: Failed to update cache after 3 retries due to W:Updating from such a repository can't be done securely, and is therefore disabled by default., W:See apt-secure(8) manpage for repository creation and user configuration details., E:The repository 'https://repo.zabbix.com/zabbix/6.0 noble Release' does not have a Release file., retrying
+
+2026-01-11 19:21:04,911 p=25999 u=huy n=ansible WARNING| [WARNING]: Sleeping for 4 seconds, before attempting to refresh the cache again
+
+2026-01-11 19:21:04,912 p=25999 u=huy n=ansible WARNING| [WARNING]: Failed to update cache after 4 retries due to W:Updating from such a repository can't be done securely, and is therefore disabled by default., W:See apt-secure(8) manpage for repository creation and user configuration details., E:The repository 'https://repo.zabbix.com/zabbix/6.0 noble Release' does not have a Release file., retrying
+
+2026-01-11 19:21:04,912 p=25999 u=huy n=ansible WARNING| [WARNING]: Sleeping for 8 seconds, before attempting to refresh the cache again
+
+2026-01-11 19:21:04,912 p=25999 u=huy n=ansible WARNING| [WARNING]: Failed to update cache after 5 retries due to W:Updating from such a repository can't be done securely, and is therefore disabled by default., W:See apt-secure(8) manpage for repository creation and user configuration details., E:The repository 'https://repo.zabbix.com/zabbix/6.0 noble Release' does not have a Release file., retrying
+
+2026-01-11 19:21:04,912 p=25999 u=huy n=ansible WARNING| [WARNING]: Sleeping for 12 seconds, before attempting to refresh the cache again
+
+2026-01-11 19:21:04,913 p=25999 u=huy n=ansible ERROR| [ERROR]: Task failed: Module failed: Failed to update apt cache after 5 retries: W:Updating from such a repository can't be done securely, and is therefore disabled by default., W:See apt-secure(8) manpage for repository creation and user configuration details., E:The repository 'https://repo.zabbix.com/zabbix/6.0 noble Release' does not have a Release file.
+Origin: /home/huy/Documents/IaC-project/ansible/wazuh-ansible-4.14.1/playbooks/zabbix-grafana-install.yml:34:7
+
+32         echo "deb [signed-by=/usr/share/keyrings/zabbix-official-repo-key.gpg] https://repo.zabbix.com/zabbix/6.0 ...
+33
+34     - name: Update apt cache after adding Zabbix repo
+         ^ column 7
+
+
+2026-01-11 19:21:04,913 p=25999 u=huy n=ansible INFO| fatal: [zabbix-grafana]: FAILED! => {"changed": false, "msg": "Failed to update apt cache after 5 retries: W:Updating from such a repository can't be done securely, and is therefore disabled by default., W:See apt-secure(8) manpage for repository creation and user configuration details., E:The repository 'https://repo.zabbix.com/zabbix/6.0 noble Release' does not have a Release file."}
+2026-01-11 19:21:04,913 p=25999 u=huy n=ansible INFO| PLAY RECAP *********************************************************************
+2026-01-11 19:21:04,914 p=25999 u=huy n=ansible INFO| zabbix-grafana             : ok=5    changed=4    unreachable=0    failed=1    skipped=0    rescued=0    ignored=0   
+2026-01-11 19:25:27,333 p=26344 u=huy n=ansible INFO| PLAY [Install Zabbix Server and Grafana] ***************************************
+2026-01-11 19:25:27,338 p=26344 u=huy n=ansible INFO| TASK [Gathering Facts] *********************************************************
+2026-01-11 19:25:29,024 p=26344 u=huy n=ansible WARNING| [WARNING]: Host 'zabbix-grafana' is using the discovered Python interpreter at '/usr/bin/python3.12', but future installation of another Python interpreter could cause a different interpreter to be discovered. See https://docs.ansible.com/ansible-core/2.19/reference_appendices/interpreter_discovery.html for more information.
+
+2026-01-11 19:25:29,025 p=26344 u=huy n=ansible INFO| ok: [zabbix-grafana]
+2026-01-11 19:25:29,027 p=26344 u=huy n=ansible INFO| TASK [Update apt cache] ********************************************************
+2026-01-11 19:25:31,160 p=26344 u=huy n=ansible INFO| ok: [zabbix-grafana]
+2026-01-11 19:25:31,164 p=26344 u=huy n=ansible INFO| TASK [Install dependencies] ****************************************************
+2026-01-11 19:25:31,949 p=26344 u=huy n=ansible INFO| ok: [zabbix-grafana]
+2026-01-11 19:25:31,952 p=26344 u=huy n=ansible INFO| TASK [Add Zabbix repository key] ***********************************************
+2026-01-11 19:25:32,960 p=26344 u=huy n=ansible INFO| changed: [zabbix-grafana]
+2026-01-11 19:25:32,963 p=26344 u=huy n=ansible INFO| TASK [Add Zabbix repository] ***************************************************
+2026-01-11 19:25:33,287 p=26344 u=huy n=ansible INFO| changed: [zabbix-grafana]
+2026-01-11 19:25:33,298 p=26344 u=huy n=ansible INFO| TASK [Update apt cache after adding Zabbix repo] *******************************
+2026-01-11 19:26:11,117 p=26344 u=huy n=ansible WARNING| [WARNING]: Failed to update cache after 1 retries due to E:The repository 'https://repo.zabbix.com/zabbix/7.0 noble Release' does not have a Release file., retrying
+
+2026-01-11 19:26:11,117 p=26344 u=huy n=ansible WARNING| [WARNING]: Sleeping for 2 seconds, before attempting to refresh the cache again
+
+2026-01-11 19:26:11,117 p=26344 u=huy n=ansible WARNING| [WARNING]: Failed to update cache after 2 retries due to W:Updating from such a repository can't be done securely, and is therefore disabled by default., W:See apt-secure(8) manpage for repository creation and user configuration details., E:The repository 'https://repo.zabbix.com/zabbix/7.0 noble Release' does not have a Release file., retrying
+
+2026-01-11 19:26:11,118 p=26344 u=huy n=ansible WARNING| [WARNING]: Sleeping for 3 seconds, before attempting to refresh the cache again
+
+2026-01-11 19:26:11,118 p=26344 u=huy n=ansible WARNING| [WARNING]: Failed to update cache after 3 retries due to W:Updating from such a repository can't be done securely, and is therefore disabled by default., W:See apt-secure(8) manpage for repository creation and user configuration details., E:The repository 'https://repo.zabbix.com/zabbix/7.0 noble Release' does not have a Release file., retrying
+
+2026-01-11 19:26:11,118 p=26344 u=huy n=ansible WARNING| [WARNING]: Sleeping for 5 seconds, before attempting to refresh the cache again
+
+2026-01-11 19:26:11,118 p=26344 u=huy n=ansible WARNING| [WARNING]: Failed to update cache after 4 retries due to W:Updating from such a repository can't be done securely, and is therefore disabled by default., W:See apt-secure(8) manpage for repository creation and user configuration details., E:The repository 'https://repo.zabbix.com/zabbix/7.0 noble Release' does not have a Release file., retrying
+
+2026-01-11 19:26:11,118 p=26344 u=huy n=ansible WARNING| [WARNING]: Sleeping for 9 seconds, before attempting to refresh the cache again
+
+2026-01-11 19:26:11,118 p=26344 u=huy n=ansible WARNING| [WARNING]: Failed to update cache after 5 retries due to W:Updating from such a repository can't be done securely, and is therefore disabled by default., W:See apt-secure(8) manpage for repository creation and user configuration details., E:The repository 'https://repo.zabbix.com/zabbix/7.0 noble Release' does not have a Release file., retrying
+
+2026-01-11 19:26:11,119 p=26344 u=huy n=ansible WARNING| [WARNING]: Sleeping for 13 seconds, before attempting to refresh the cache again
+
+2026-01-11 19:26:11,119 p=26344 u=huy n=ansible ERROR| [ERROR]: Task failed: Module failed: Failed to update apt cache after 5 retries: W:Updating from such a repository can't be done securely, and is therefore disabled by default., W:See apt-secure(8) manpage for repository creation and user configuration details., E:The repository 'https://repo.zabbix.com/zabbix/7.0 noble Release' does not have a Release file.
+Origin: /home/huy/Documents/IaC-project/ansible/wazuh-ansible-4.14.1/playbooks/zabbix-grafana-install.yml:34:7
+
+32         echo "deb [signed-by=/usr/share/keyrings/zabbix-official-repo-key.gpg] https://repo.zabbix.com/zabbix/7.0 ...
+33
+34     - name: Update apt cache after adding Zabbix repo
+         ^ column 7
+
+
+2026-01-11 19:26:11,119 p=26344 u=huy n=ansible INFO| fatal: [zabbix-grafana]: FAILED! => {"changed": false, "msg": "Failed to update apt cache after 5 retries: W:Updating from such a repository can't be done securely, and is therefore disabled by default., W:See apt-secure(8) manpage for repository creation and user configuration details., E:The repository 'https://repo.zabbix.com/zabbix/7.0 noble Release' does not have a Release file."}
+2026-01-11 19:26:11,120 p=26344 u=huy n=ansible INFO| PLAY RECAP *********************************************************************
+2026-01-11 19:26:11,120 p=26344 u=huy n=ansible INFO| zabbix-grafana             : ok=5    changed=2    unreachable=0    failed=1    skipped=0    rescued=0    ignored=0   
+2026-01-11 19:26:45,580 p=26547 u=huy n=ansible INFO| PLAY [Install Zabbix Server and Grafana] ***************************************
+2026-01-11 19:26:45,585 p=26547 u=huy n=ansible INFO| TASK [Gathering Facts] *********************************************************
+2026-01-11 19:26:46,637 p=26547 u=huy n=ansible WARNING| [WARNING]: Host 'zabbix-grafana' is using the discovered Python interpreter at '/usr/bin/python3.12', but future installation of another Python interpreter could cause a different interpreter to be discovered. See https://docs.ansible.com/ansible-core/2.19/reference_appendices/interpreter_discovery.html for more information.
+
+2026-01-11 19:26:46,637 p=26547 u=huy n=ansible INFO| ok: [zabbix-grafana]
+2026-01-11 19:26:46,640 p=26547 u=huy n=ansible INFO| TASK [Update apt cache] ********************************************************
+2026-01-11 19:26:47,390 p=26547 u=huy n=ansible INFO| ok: [zabbix-grafana]
+2026-01-11 19:26:47,394 p=26547 u=huy n=ansible INFO| TASK [Install dependencies] ****************************************************
+2026-01-11 19:26:48,205 p=26547 u=huy n=ansible INFO| ok: [zabbix-grafana]
+2026-01-11 19:26:48,209 p=26547 u=huy n=ansible INFO| TASK [Install Zabbix server and frontend from Ubuntu repos] ********************
+2026-01-11 19:26:48,800 p=26547 u=huy n=ansible ERROR| [ERROR]: Task failed: Module failed: No package matching 'zabbix-server-mysql' is available
+Origin: /home/huy/Documents/IaC-project/ansible/wazuh-ansible-4.14.1/playbooks/zabbix-grafana-install.yml:26:7
+
+24         state: present
+25
+26     - name: Install Zabbix server and frontend from Ubuntu repos
+         ^ column 7
+
+
+2026-01-11 19:26:48,801 p=26547 u=huy n=ansible INFO| fatal: [zabbix-grafana]: FAILED! => {"changed": false, "msg": "No package matching 'zabbix-server-mysql' is available"}
+2026-01-11 19:26:48,801 p=26547 u=huy n=ansible INFO| PLAY RECAP *********************************************************************
+2026-01-11 19:26:48,802 p=26547 u=huy n=ansible INFO| zabbix-grafana             : ok=3    changed=0    unreachable=0    failed=1    skipped=0    rescued=0    ignored=0   
+2026-01-11 19:30:31,854 p=26951 u=huy n=ansible INFO| PLAY [Install Zabbix Server and Grafana] ***************************************
+2026-01-11 19:30:31,859 p=26951 u=huy n=ansible INFO| TASK [Gathering Facts] *********************************************************
+2026-01-11 19:30:33,549 p=26951 u=huy n=ansible WARNING| [WARNING]: Host 'zabbix-grafana' is using the discovered Python interpreter at '/usr/bin/python3.12', but future installation of another Python interpreter could cause a different interpreter to be discovered. See https://docs.ansible.com/ansible-core/2.19/reference_appendices/interpreter_discovery.html for more information.
+
+2026-01-11 19:30:33,549 p=26951 u=huy n=ansible INFO| ok: [zabbix-grafana]
+2026-01-11 19:30:33,553 p=26951 u=huy n=ansible INFO| TASK [Update apt cache] ********************************************************
+2026-01-11 19:30:34,426 p=26951 u=huy n=ansible INFO| ok: [zabbix-grafana]
+2026-01-11 19:30:34,434 p=26951 u=huy n=ansible INFO| TASK [Install dependencies] ****************************************************
+2026-01-11 19:31:10,261 p=26951 u=huy n=ansible INFO| changed: [zabbix-grafana]
+2026-01-11 19:31:10,266 p=26951 u=huy n=ansible INFO| TASK [Download Zabbix release package] *****************************************
+2026-01-11 19:31:11,334 p=26951 u=huy n=ansible INFO| changed: [zabbix-grafana]
+2026-01-11 19:31:11,344 p=26951 u=huy n=ansible INFO| TASK [Install Zabbix release package] ******************************************
+2026-01-11 19:51:08,168 p=27526 u=huy n=ansible INFO| PLAY [Install Zabbix Server and Grafana] ***************************************
+2026-01-11 19:51:08,173 p=27526 u=huy n=ansible INFO| TASK [Gathering Facts] *********************************************************
+2026-01-11 19:51:09,239 p=27526 u=huy n=ansible WARNING| [WARNING]: Host 'zabbix-grafana' is using the discovered Python interpreter at '/usr/bin/python3.12', but future installation of another Python interpreter could cause a different interpreter to be discovered. See https://docs.ansible.com/ansible-core/2.19/reference_appendices/interpreter_discovery.html for more information.
+
+2026-01-11 19:51:09,239 p=27526 u=huy n=ansible INFO| ok: [zabbix-grafana]
+2026-01-11 19:51:09,251 p=27526 u=huy n=ansible INFO| TASK [Update apt cache] ********************************************************
+2026-01-11 19:51:11,434 p=27526 u=huy n=ansible INFO| ok: [zabbix-grafana]
+2026-01-11 19:51:11,438 p=27526 u=huy n=ansible INFO| TASK [Install dependencies] ****************************************************
+2026-01-11 19:51:12,410 p=27526 u=huy n=ansible INFO| ok: [zabbix-grafana]
+2026-01-11 19:51:12,413 p=27526 u=huy n=ansible INFO| TASK [Download Zabbix release package] *****************************************
+2026-01-11 19:51:13,477 p=27526 u=huy n=ansible INFO| changed: [zabbix-grafana]
+2026-01-11 19:51:13,481 p=27526 u=huy n=ansible INFO| TASK [Install Zabbix release package] ******************************************
+2026-01-11 19:59:24,609 p=27526 u=huy n=ansible ERROR| [ERROR]: User interrupted execution
+
+2026-01-11 20:01:15,566 p=27852 u=huy n=ansible INFO| PLAY [Install Zabbix Server and Grafana] ***************************************
+2026-01-11 20:01:15,573 p=27852 u=huy n=ansible INFO| TASK [Gathering Facts] *********************************************************
+2026-01-11 20:01:17,331 p=27852 u=huy n=ansible WARNING| [WARNING]: Host 'zabbix-grafana' is using the discovered Python interpreter at '/usr/bin/python3.12', but future installation of another Python interpreter could cause a different interpreter to be discovered. See https://docs.ansible.com/ansible-core/2.19/reference_appendices/interpreter_discovery.html for more information.
+
+2026-01-11 20:01:17,332 p=27852 u=huy n=ansible INFO| ok: [zabbix-grafana]
+2026-01-11 20:01:17,336 p=27852 u=huy n=ansible INFO| TASK [Update apt cache] ********************************************************
+2026-01-11 20:01:18,385 p=27852 u=huy n=ansible INFO| ok: [zabbix-grafana]
+2026-01-11 20:01:18,393 p=27852 u=huy n=ansible INFO| TASK [Install dependencies] ****************************************************
+2026-01-11 20:01:19,285 p=27852 u=huy n=ansible INFO| ok: [zabbix-grafana]
+2026-01-11 20:01:19,293 p=27852 u=huy n=ansible INFO| TASK [Download Zabbix release package] *****************************************
+2026-01-11 20:01:20,419 p=27852 u=huy n=ansible INFO| changed: [zabbix-grafana]
+2026-01-11 20:01:20,422 p=27852 u=huy n=ansible INFO| TASK [Install Zabbix release package] ******************************************
+2026-01-11 20:36:12,888 p=28701 u=huy n=ansible INFO| PLAY [Install Zabbix Server and Grafana] ***************************************
+2026-01-11 20:36:12,894 p=28701 u=huy n=ansible INFO| TASK [Gathering Facts] *********************************************************
+2026-01-11 20:36:13,999 p=28701 u=huy n=ansible WARNING| [WARNING]: Host 'zabbix-grafana' is using the discovered Python interpreter at '/usr/bin/python3.12', but future installation of another Python interpreter could cause a different interpreter to be discovered. See https://docs.ansible.com/ansible-core/2.19/reference_appendices/interpreter_discovery.html for more information.
+
+2026-01-11 20:36:13,999 p=28701 u=huy n=ansible INFO| ok: [zabbix-grafana]
+2026-01-11 20:36:14,001 p=28701 u=huy n=ansible INFO| TASK [Update apt cache] ********************************************************
+2026-01-11 20:36:58,642 p=28701 u=huy n=ansible WARNING| [WARNING]: Failed to update cache after 1 retries due to W:GPG error: https://repo.zabbix.com/zabbix-tools/debian-ubuntu noble InRelease: The following signatures couldn't be verified because the public key is not available: NO_PUBKEY D913219AB5333005, E:The repository 'https://repo.zabbix.com/zabbix-tools/debian-ubuntu noble InRelease' is not signed., W:Updating from such a repository can't be done securely, and is therefore disabled by default., W:See apt-secure(8) manpage for repository creation and user configuration details., E:The repository 'https://repo.zabbix.com/zabbix/7.0 noble Release' does not have a Release file., retrying
+
+2026-01-11 20:36:58,643 p=28701 u=huy n=ansible WARNING| [WARNING]: Sleeping for 2 seconds, before attempting to refresh the cache again
+
+2026-01-11 20:36:58,644 p=28701 u=huy n=ansible WARNING| [WARNING]: Failed to update cache after 2 retries due to W:Updating from such a repository can't be done securely, and is therefore disabled by default., W:See apt-secure(8) manpage for repository creation and user configuration details., W:GPG error: https://repo.zabbix.com/zabbix-tools/debian-ubuntu noble InRelease: The following signatures couldn't be verified because the public key is not available: NO_PUBKEY D913219AB5333005, E:The repository 'https://repo.zabbix.com/zabbix-tools/debian-ubuntu noble InRelease' is not signed., W:Updating from such a repository can't be done securely, and is therefore disabled by default., W:See apt-secure(8) manpage for repository creation and user configuration details., E:The repository 'https://repo.zabbix.com/zabbix/7.0 noble Release' does not have a Release file., retrying
+
+2026-01-11 20:36:58,644 p=28701 u=huy n=ansible WARNING| [WARNING]: Sleeping for 3 seconds, before attempting to refresh the cache again
+
+2026-01-11 20:36:58,644 p=28701 u=huy n=ansible WARNING| [WARNING]: Failed to update cache after 3 retries due to W:Updating from such a repository can't be done securely, and is therefore disabled by default., W:See apt-secure(8) manpage for repository creation and user configuration details., W:GPG error: https://repo.zabbix.com/zabbix-tools/debian-ubuntu noble InRelease: The following signatures couldn't be verified because the public key is not available: NO_PUBKEY D913219AB5333005, E:The repository 'https://repo.zabbix.com/zabbix-tools/debian-ubuntu noble InRelease' is not signed., W:Updating from such a repository can't be done securely, and is therefore disabled by default., W:See apt-secure(8) manpage for repository creation and user configuration details., E:The repository 'https://repo.zabbix.com/zabbix/7.0 noble Release' does not have a Release file., retrying
+
+2026-01-11 20:36:58,644 p=28701 u=huy n=ansible WARNING| [WARNING]: Sleeping for 5 seconds, before attempting to refresh the cache again
+
+2026-01-11 20:36:58,644 p=28701 u=huy n=ansible WARNING| [WARNING]: Failed to update cache after 4 retries due to W:Updating from such a repository can't be done securely, and is therefore disabled by default., W:See apt-secure(8) manpage for repository creation and user configuration details., W:GPG error: https://repo.zabbix.com/zabbix-tools/debian-ubuntu noble InRelease: The following signatures couldn't be verified because the public key is not available: NO_PUBKEY D913219AB5333005, E:The repository 'https://repo.zabbix.com/zabbix-tools/debian-ubuntu noble InRelease' is not signed., W:Updating from such a repository can't be done securely, and is therefore disabled by default., W:See apt-secure(8) manpage for repository creation and user configuration details., E:The repository 'https://repo.zabbix.com/zabbix/7.0 noble Release' does not have a Release file., retrying
+
+2026-01-11 20:36:58,644 p=28701 u=huy n=ansible WARNING| [WARNING]: Sleeping for 9 seconds, before attempting to refresh the cache again
+
+2026-01-11 20:36:58,644 p=28701 u=huy n=ansible WARNING| [WARNING]: Failed to update cache after 5 retries due to W:Updating from such a repository can't be done securely, and is therefore disabled by default., W:See apt-secure(8) manpage for repository creation and user configuration details., W:GPG error: https://repo.zabbix.com/zabbix-tools/debian-ubuntu noble InRelease: The following signatures couldn't be verified because the public key is not available: NO_PUBKEY D913219AB5333005, E:The repository 'https://repo.zabbix.com/zabbix-tools/debian-ubuntu noble InRelease' is not signed., W:Updating from such a repository can't be done securely, and is therefore disabled by default., W:See apt-secure(8) manpage for repository creation and user configuration details., E:The repository 'https://repo.zabbix.com/zabbix/7.0 noble Release' does not have a Release file., retrying
+
+2026-01-11 20:36:58,645 p=28701 u=huy n=ansible WARNING| [WARNING]: Sleeping for 13 seconds, before attempting to refresh the cache again
+
+2026-01-11 20:36:58,645 p=28701 u=huy n=ansible ERROR| [ERROR]: Task failed: Module failed: Failed to update apt cache after 5 retries: W:Updating from such a repository can't be done securely, and is therefore disabled by default., W:See apt-secure(8) manpage for repository creation and user configuration details., W:GPG error: https://repo.zabbix.com/zabbix-tools/debian-ubuntu noble InRelease: The following signatures couldn't be verified because the public key is not available: NO_PUBKEY D913219AB5333005, E:The repository 'https://repo.zabbix.com/zabbix-tools/debian-ubuntu noble InRelease' is not signed., W:Updating from such a repository can't be done securely, and is therefore disabled by default., W:See apt-secure(8) manpage for repository creation and user configuration details., E:The repository 'https://repo.zabbix.com/zabbix/7.0 noble Release' does not have a Release file.
+Origin: /home/huy/Documents/IaC-project/ansible/wazuh-ansible-4.14.1/playbooks/zabbix-grafana-install.yml:7:7
+
+5   
+6   tasks:
+7     - name: Update apt cache
+        ^ column 7
+
+
+2026-01-11 20:36:58,645 p=28701 u=huy n=ansible INFO| fatal: [zabbix-grafana]: FAILED! => {"changed": false, "msg": "Failed to update apt cache after 5 retries: W:Updating from such a repository can't be done securely, and is therefore disabled by default., W:See apt-secure(8) manpage for repository creation and user configuration details., W:GPG error: https://repo.zabbix.com/zabbix-tools/debian-ubuntu noble InRelease: The following signatures couldn't be verified because the public key is not available: NO_PUBKEY D913219AB5333005, E:The repository 'https://repo.zabbix.com/zabbix-tools/debian-ubuntu noble InRelease' is not signed., W:Updating from such a repository can't be done securely, and is therefore disabled by default., W:See apt-secure(8) manpage for repository creation and user configuration details., E:The repository 'https://repo.zabbix.com/zabbix/7.0 noble Release' does not have a Release file."}
+2026-01-11 20:36:58,646 p=28701 u=huy n=ansible INFO| PLAY RECAP *********************************************************************
+2026-01-11 20:36:58,646 p=28701 u=huy n=ansible INFO| zabbix-grafana             : ok=1    changed=0    unreachable=0    failed=1    skipped=0    rescued=0    ignored=0   

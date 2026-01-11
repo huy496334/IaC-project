@@ -1,0 +1,124 @@
+---
+- name: Install and Configure Suricata IDS
+  hosts: suricata
+  become: yes
+  vars:
+    suricata_version: "7.0"
+    wazuh_agent_version: "4.14.1"
+  
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install dependencies
+      apt:
+        name:
+          - wget
+          - curl
+          - gnupg2
+          - apt-transport-https
+          - ca-certificates
+          - software-properties-common
+          - libpcre2-dev
+          - libjansson-dev
+          - libpython3-dev
+          - libmagic-dev
+          - libtool
+          - autoconf
+          - automake
+        state: present
+
+    - name: Add Suricata repository
+      shell: |
+        add-apt-repository -y ppa:oisf/suricata-stable
+        apt-get update
+
+    - name: Install Suricata
+      apt:
+        name: suricata
+        state: present
+
+    - name: Create Suricata configuration directories
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+      loop:
+        - /etc/suricata
+        - /var/log/suricata
+        - /var/lib/suricata
+
+    - name: Update Suricata configuration
+      lineinfile:
+        path: /etc/suricata/suricata.yaml
+        regexp: "{{ item.regexp }}"
+        line: "{{ item.line }}"
+      loop:
+        - regexp: "^  af-packet:"
+          line: "  af-packet:"
+        - regexp: "    - interface: eth0"
+          line: "    - interface: eth1"
+
+    - name: Start and enable Suricata
+      systemd:
+        name: suricata
+        state: started
+        enabled: yes
+        daemon_reload: yes
+
+    - name: Wait for Suricata to start
+      pause:
+        seconds: 5
+
+    - name: Verify Suricata is running
+      shell: suricata -V
+      register: suricata_version_check
+      changed_when: false
+
+    - name: Display Suricata version
+      debug:
+        msg: "{{ suricata_version_check.stdout }}"
+
+    - name: Download Wazuh agent
+      apt:
+        name: wazuh-agent
+        state: present
+      ignore_errors: yes
+
+    - name: Create directory for Suricata logs
+      file:
+        path: /var/log/suricata
+        owner: suricata
+        group: suricata
+        mode: '0755'
+        state: directory
+
+    - name: Configure Suricata logging for Wazuh
+      blockinfile:
+        path: /var/ossec/etc/ossec.conf
+        block: |
+          <localfile>
+            <log_format>json</log_format>
+            <path>/var/log/suricata/eve.json</path>
+          </localfile>
+        marker: "<!-- {mark} SURICATA LOGGING -->"
+        create: yes
+      ignore_errors: yes
+
+    - name: Ensure Suricata EVE JSON logging is enabled
+      lineinfile:
+        path: /etc/suricata/suricata.yaml
+        regexp: "^  - eve-log:"
+        line: "  - eve-log:"
+        state: present
+
+    - name: Final status check
+      shell: systemctl status suricata | grep Active
+      register: suricata_status
+      changed_when: false
+
+    - name: Display Suricata status
+      debug:
+        msg: "{{ suricata_status.stdout }}"

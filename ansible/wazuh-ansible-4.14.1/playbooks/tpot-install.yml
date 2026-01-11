@@ -1,0 +1,95 @@
+---
+- name: Install T-Pot Honeypot
+  hosts: honeypot
+  become: yes
+  
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install dependencies
+      apt:
+        name:
+          - curl
+          - wget
+          - git
+          - docker.io
+          - docker-compose
+          - python3-pip
+          - openssh-server
+        state: present
+
+    - name: Start and enable Docker
+      systemd:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Install Docker Compose via pip
+      pip:
+        name: docker-compose
+        state: present
+
+    - name: Clone T-Pot repository
+      git:
+        repo: https://github.com/telekom-security/tpotce.git
+        dest: /opt/tpot
+        version: master
+
+    - name: Create T-Pot installer directory
+      file:
+        path: /opt/tpot
+        state: directory
+        mode: '0755'
+
+    - name: Create minimal T-Pot docker-compose configuration
+      copy:
+        content: |
+          version: '3.8'
+          services:
+            honey:
+              image: honeynet/tpot:latest
+              container_name: tpot
+              restart: always
+              ports:
+                - "21:21"
+                - "22:22"
+                - "23:23"
+                - "69:69/udp"
+                - "80:80"
+                - "443:443"
+                - "3306:3306"
+                - "5432:5432"
+                - "8080:8080"
+                - "9200:9200"
+              networks:
+                - tpot_net
+              environment:
+                HOSTNAME: "tpot-honeypot"
+          
+          networks:
+            tpot_net:
+              driver: bridge
+        dest: /opt/tpot/docker-compose.yml
+
+    - name: Create T-Pot data directory
+      file:
+        path: /data/tpot
+        state: directory
+        mode: '0755'
+
+    - name: Pull Docker images for T-Pot
+      shell: |
+        docker pull honeynet/tpot:latest || true
+
+    - name: Display T-Pot setup information
+      debug:
+        msg:
+          - "T-Pot honeypot infrastructure installed"
+          - "Location: /opt/tpot"
+          - "Docker Compose configuration: /opt/tpot/docker-compose.yml"
+          - "To start T-Pot services: docker-compose -f /opt/tpot/docker-compose.yml up -d"
+          - "T-Pot will expose multiple honeypot services on common ports"
+          - "Monitor attacks at 192.168.52.10 via ELK stack (when running)"

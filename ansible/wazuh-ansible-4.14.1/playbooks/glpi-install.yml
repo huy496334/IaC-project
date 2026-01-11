@@ -1,0 +1,106 @@
+---
+- name: Install GLPI Ticketing System
+  hosts: glpi
+  become: yes
+  
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install dependencies
+      apt:
+        name:
+          - curl
+          - wget
+          - git
+          - php
+          - php-mysql
+          - php-ldap
+          - php-curl
+          - php-gd
+          - php-intl
+          - php-mbstring
+          - php-xmlrpc
+          - php-soap
+          - php-apcu
+          - php-cli
+          - apache2
+          - mariadb-server
+          - ca-certificates
+        state: present
+
+    - name: Enable Apache modules
+      shell: |
+        a2enmod rewrite
+        a2enmod deflate
+        systemctl restart apache2
+
+    - name: Start and enable MariaDB
+      systemd:
+        name: mariadb
+        state: started
+        enabled: yes
+
+    - name: Secure MySQL installation - set root password
+      shell: |
+        mysql -u root -e "SET PASSWORD FOR 'root'@'localhost' = PASSWORD('glpi123');" || true
+
+    - name: Create GLPI database
+      shell: |
+        mysql -u root -pglpi123 -e "CREATE DATABASE glpi CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" || true
+
+    - name: Create GLPI user
+      shell: |
+        mysql -u root -pglpi123 -e "CREATE USER 'glpi'@'localhost' IDENTIFIED BY 'glpi123';" || true
+
+    - name: Grant GLPI database privileges
+      shell: |
+        mysql -u root -pglpi123 -e "GRANT ALL PRIVILEGES ON glpi.* TO 'glpi'@'localhost'; FLUSH PRIVILEGES;" || true
+
+    - name: Download GLPI latest version
+      shell: |
+        cd /var/www/html && \
+        wget -q https://github.com/glpi-project/glpi/releases/download/10.0.10/glpi-10.0.10.tgz && \
+        tar -xzf glpi-10.0.10.tgz && \
+        rm glpi-10.0.10.tgz
+
+    - name: Set GLPI directory permissions
+      shell: |
+        chown -R www-data:www-data /var/www/html/glpi
+        chmod -R 755 /var/www/html/glpi
+
+    - name: Create GLPI Apache configuration
+      copy:
+        content: |
+          <VirtualHost *:80>
+            ServerName glpi-tickets
+            DocumentRoot /var/www/html/glpi/public
+            
+            <Directory /var/www/html/glpi/public>
+              Require all granted
+              RewriteEngine On
+              RewriteCond %{REQUEST_FILENAME} !-f
+              RewriteCond %{REQUEST_FILENAME} !-d
+              RewriteRule ^(.*)$ index.php [QSA,L]
+            </Directory>
+            
+            ErrorLog ${APACHE_LOG_DIR}/glpi_error.log
+            CustomLog ${APACHE_LOG_DIR}/glpi_access.log combined
+          </VirtualHost>
+        dest: /etc/apache2/sites-available/glpi.conf
+
+    - name: Enable GLPI Apache site
+      shell: |
+        a2ensite glpi
+        a2dissite 000-default
+        apache2ctl configtest && systemctl restart apache2
+
+    - name: Display GLPI access information
+      debug:
+        msg:
+          - "GLPI is installed at http://192.168.50.30/"
+          - "Complete setup wizard at http://192.168.50.30/install.php"
+          - "Default credentials will be set during wizard setup"
+          - "Database: localhost / glpi / glpi123"
