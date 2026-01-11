@@ -1,9 +1,14 @@
 ---
-- hosts: managers
+- hosts: aio
+  become: yes
+  vars:
+    indexer_username: admin
+    indexer_password: changeme
   roles:
     - role: ../roles/wazuh/ansible-wazuh-manager
     - role: ../roles/wazuh/ansible-filebeat-oss
+      filebeat_node_name: node-1
       filebeat_output_indexer_hosts:
-      - "<indexer-node-1>:9200"
-      - "<indexer-node-2>:9200"
-      - "<indexer-node-2>:9200"
+        - "127.0.0.1:9200"
+      filebeat_output_indexer_username: admin
+      filebeat_output_indexer_password: changeme

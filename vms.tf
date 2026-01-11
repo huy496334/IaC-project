@@ -10,7 +10,7 @@ resource "proxmox_vm_qemu" "wazuh_server" {
   clone           = var.template_name
   full_clone      = true
   
-  memory          = var.vm_memory * 2
+  memory          = var.vm_memory * 4
   scsihw          = "virtio-scsi-pci"
   boot            = "order=scsi0"
   
@@ -21,7 +21,7 @@ resource "proxmox_vm_qemu" "wazuh_server" {
   disk {
     type    = "disk"
     storage = var.storage_pool
-    size    = var.vm_disk_size
+    size    = "100G"
     slot    = "scsi0"
   }
   

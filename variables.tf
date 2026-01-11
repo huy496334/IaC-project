@@ -109,7 +109,7 @@ variable "vm_sockets" {
 variable "vm_disk_size" {
   description = "Default VM disk size in GB"
   type        = number
-  default     = 20
+  default     = 32
 }
 
 # SSH Configuration
