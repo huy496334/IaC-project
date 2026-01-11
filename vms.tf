@@ -35,7 +35,7 @@ resource "proxmox_vm_qemu" "wazuh_server" {
   disk {
     type    = "cloudinit"
     storage = var.storage_pool
-    slot    = "ide2"
+    slot    = "scsi2"
   }
   
   network {
@@ -47,9 +47,27 @@ resource "proxmox_vm_qemu" "wazuh_server" {
   
   ciuser = var.ssh_username
   cipassword = var.ssh_password
+  sshkeys = var.ssh_public_key
   ipconfig0 = "ip=192.168.50.10/24,gw=${var.soc_network_gateway}"
-  skip_ipv6 = true
   start_at_node_boot = true
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo apt update",
+      "sudo apt install -y qemu-guest-agent",
+      "sudo apt upgrade -y",
+      "sudo systemctl start qemu-guest-agent",
+      "sudo systemctl enable qemu-guest-agent"
+    ]
+
+    connection {
+      type        = "ssh"
+      user        = var.ssh_username
+      private_key = file("~/.ssh/id_ed25519")
+      host        = "192.168.50.10"
+      timeout     = "5m"
+    }
+  }
 }
 
 # Suricata IDS Server
@@ -87,7 +105,7 @@ resource "proxmox_vm_qemu" "suricata_ids" {
   disk {
     type    = "cloudinit"
     storage = var.storage_pool
-    slot    = "ide2"
+    slot    = "scsi2"
   }
   
   network {
@@ -99,8 +117,27 @@ resource "proxmox_vm_qemu" "suricata_ids" {
   
   ciuser = var.ssh_username
   cipassword = var.ssh_password
+  sshkeys = var.ssh_public_key
   ipconfig0 = "ip=192.168.50.11/24,gw=${var.soc_network_gateway}"
   start_at_node_boot = true
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo apt update",
+      "sudo apt install -y qemu-guest-agent",
+      "sudo apt upgrade -y",
+      "sudo systemctl start qemu-guest-agent",
+      "sudo systemctl enable qemu-guest-agent"
+    ]
+
+    connection {
+      type        = "ssh"
+      user        = var.ssh_username
+      private_key = file("~/.ssh/id_ed25519")
+      host        = "192.168.50.11"
+      timeout     = "5m"
+    }
+  }
 }
 
 # Zabbix + Grafana Monitoring Server
@@ -138,7 +175,7 @@ resource "proxmox_vm_qemu" "zabbix_grafana" {
   disk {
     type    = "cloudinit"
     storage = var.storage_pool
-    slot    = "ide2"
+    slot    = "scsi2"
   }
   
   network {
@@ -150,8 +187,27 @@ resource "proxmox_vm_qemu" "zabbix_grafana" {
   
   ciuser = var.ssh_username
   cipassword = var.ssh_password
+  sshkeys = var.ssh_public_key
   ipconfig0 = "ip=192.168.50.20/24,gw=${var.soc_network_gateway}"
   start_at_node_boot = true
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo apt update",
+      "sudo apt install -y qemu-guest-agent",
+      "sudo apt upgrade -y",
+      "sudo systemctl start qemu-guest-agent",
+      "sudo systemctl enable qemu-guest-agent"
+    ]
+
+    connection {
+      type        = "ssh"
+      user        = var.ssh_username
+      private_key = file("~/.ssh/id_ed25519")
+      host        = "192.168.50.20"
+      timeout     = "5m"
+    }
+  }
 }
 
 # GLPI Ticketing System
@@ -189,7 +245,7 @@ resource "proxmox_vm_qemu" "glpi_tickets" {
   disk {
     type    = "cloudinit"
     storage = var.storage_pool
-    slot    = "ide2"
+    slot    = "scsi2"
   }
   
   network {
@@ -201,8 +257,27 @@ resource "proxmox_vm_qemu" "glpi_tickets" {
   
   ciuser = var.ssh_username
   cipassword = var.ssh_password
+  sshkeys = var.ssh_public_key
   ipconfig0 = "ip=192.168.50.30/24,gw=${var.soc_network_gateway}"
   start_at_node_boot = true
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo apt update",
+      "sudo apt install -y qemu-guest-agent",
+      "sudo apt upgrade -y",
+      "sudo systemctl start qemu-guest-agent",
+      "sudo systemctl enable qemu-guest-agent"
+    ]
+
+    connection {
+      type        = "ssh"
+      user        = var.ssh_username
+      private_key = file("~/.ssh/id_ed25519")
+      host        = "192.168.50.30"
+      timeout     = "5m"
+    }
+  }
 }
 
 # T-Pot Honeypot Server
@@ -240,7 +315,7 @@ resource "proxmox_vm_qemu" "tpot_honeypot" {
   disk {
     type    = "cloudinit"
     storage = var.storage_pool
-    slot    = "ide2"
+    slot    = "scsi2"
   }
   
   network {
@@ -252,8 +327,27 @@ resource "proxmox_vm_qemu" "tpot_honeypot" {
   
   ciuser = var.ssh_username
   cipassword = var.ssh_password
+  sshkeys = var.ssh_public_key
   ipconfig0 = "ip=192.168.52.10/24,gw=${var.honeypot_network_gateway}"
   start_at_node_boot = true
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo apt update",
+      "sudo apt install -y qemu-guest-agent",
+      "sudo apt upgrade -y",
+      "sudo systemctl start qemu-guest-agent",
+      "sudo systemctl enable qemu-guest-agent"
+    ]
+
+    connection {
+      type        = "ssh"
+      user        = var.ssh_username
+      private_key = file("~/.ssh/id_ed25519")
+      host        = "192.168.52.10"
+      timeout     = "5m"
+    }
+  }
 }
 
 # Infection Monkey Server (in SOC Network for testing)
@@ -291,7 +385,7 @@ resource "proxmox_vm_qemu" "infection_monkey" {
   disk {
     type    = "cloudinit"
     storage = var.storage_pool
-    slot    = "ide2"
+    slot    = "scsi2"
   }
   
   network {
@@ -303,75 +397,25 @@ resource "proxmox_vm_qemu" "infection_monkey" {
   
   ciuser = var.ssh_username
   cipassword = var.ssh_password
+  sshkeys = var.ssh_public_key
   ipconfig0 = "ip=192.168.50.40/24,gw=${var.soc_network_gateway}"
   start_at_node_boot = true
-}
 
-# Router VM for NAT and inter-VLAN routing
-resource "proxmox_vm_qemu" "router" {
-  name            = "router-nat"
-  vmid            = 150
-  target_node     = var.proxmox_node
-  clone           = var.router_template_name
-  full_clone      = true
-  
-  memory          = 1024
-  scsihw          = "virtio-scsi-pci"
-  boot            = "order=scsi0"
-  
-  serial {
-    id   = 0
-    type = "socket"
+  provisioner "remote-exec" {
+    inline = [
+      "sudo apt update",
+      "sudo apt install -y qemu-guest-agent",
+      "sudo apt upgrade -y",
+      "sudo systemctl start qemu-guest-agent",
+      "sudo systemctl enable qemu-guest-agent"
+    ]
+
+    connection {
+      type        = "ssh"
+      user        = var.ssh_username
+      private_key = file("~/.ssh/id_ed25519")
+      host        = "192.168.50.40"
+      timeout     = "5m"
+    }
   }
-  
-  vga {
-    type = "serial0"
-  }
-  
-  cpu {
-    cores = 1
-  }
-  
-  disk {
-    type    = "disk"
-    storage = var.storage_pool
-    size    = var.vm_disk_size
-    slot    = "scsi0"
-  }
-  
-  disk {
-    type    = "cloudinit"
-    storage = var.storage_pool
-    slot    = "ide2"
-  }
-  
-  # WAN interface - connected to vmbr0 (internet)
-  network {
-    id     = 0
-    model  = "virtio"
-    bridge = "vmbr0"
-  }
-  
-  # SOC Network interface - gateway for 192.168.50.0/24
-  network {
-    id     = 1
-    model  = "virtio"
-    bridge = var.soc_bridge
-    tag    = var.soc_network_vlan
-  }
-  
-  # Honeypot Network interface - gateway for 192.168.52.0/24
-  network {
-    id     = 2
-    model  = "virtio"
-    bridge = var.honeypot_bridge
-    tag    = var.honeypot_network_vlan
-  }
-  
-  # Cloud-init settings are inherited from template (includes NAT config)
-  # Only set IP configuration, user/password comes from template
-  ipconfig0 = "ip=dhcp"
-  ipconfig1 = "ip=${var.soc_network_gateway}/24"
-  ipconfig2 = "ip=${var.honeypot_network_gateway}/24"
-  start_at_node_boot = true
 }

@@ -27,13 +27,7 @@ variable "proxmox_node" {
 variable "template_name" {
   description = "Name of the cloud-init template"
   type        = string
-  default     = "ubuntu-cloud-init-template"
-}
-
-variable "router_template_name" {
-  description = "Name of the router template with NAT pre-configured"
-  type        = string
-  default     = "ubuntu-router-template"
+  default     = "ubuntu-2404-cloudimg"
 }
 
 # Storage Configuration
@@ -129,4 +123,9 @@ variable "ssh_password" {
   description = "SSH password for VMs"
   type        = string
   sensitive   = true
+}
+
+variable "ssh_public_key" {
+  description = "SSH public key for VMs"
+  type        = string
 }
